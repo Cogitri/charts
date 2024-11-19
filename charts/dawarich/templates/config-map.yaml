@@ -1,0 +1,9 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: {{ include "dawarich.fullname" . }}-config
+  labels:
+    {{- include "dawarich.labels" . | nindent 4 }}
+data:
+  RAILS_ENV: "development"
+  {{- include "dawarich.environmentSetup" (dict "environment" .Values.dawarich.env)}}

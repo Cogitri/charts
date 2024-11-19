@@ -1,0 +1,173 @@
+# Default values for dawarich.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: freikin/dawarich
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+dawarich:
+  secretKeyBase:
+    value: changeme
+    # existingSecret: dawarich-secret-key-base
+  postgres:
+      host: postgresql
+      username: dawarich
+      password: changeme
+      database: dawarich
+      # existingSecret: dawarich-postgresql-secret
+  redis:
+    url: "redis://redis:password@redis:6379/0"
+    # existingSecret: dawarich-redis-secret
+  env:
+    minMinutesSpentInCity: "60"
+    applicationHost: "dawarich.example.org"
+    timeZone: "Europe/Berlin"
+    backgroundProcessingConcurrency: "10"
+    applicationProtocol: "http"
+    distanceUnit: "km"
+    photonApiHost: "photon.komoot.io"
+    photonApiUseHttps: "true"
+
+persistence:
+  gemCache:
+    existingClaim: ""
+    annotations: []
+    accessMode: "ReadWriteOnce"
+    storageClass: ""
+    size: 1Gi
+  public:
+    existingClaim: ""
+    annotations: []
+    accessMode: "ReadWriteOnce"
+    storageClass: ""
+    size: 10Gi
+  watched:
+    existingClaim: ""
+    annotations: []
+    accessMode: "ReadWriteOnce"
+    storageClass: ""
+    size: 10Gi
+
+postgresql:
+  auth:
+    database: dawarich
+    postgresPassword: changeme
+    username: dawarich
+    # existingSecret: dawarich-postgresql
+  primary:
+    persistence:
+      enabled: false
+      # storageClass: ""
+      # size: 8Gi
+
+redis:
+  auth:
+    enabled: true
+    # Use an existing secret for redis auth. Do this if you're using Argo to manage your instance or otherwise using helm template under the hood
+    #     The secret name can vary, but the password key must be redis-password.
+    # existingSecret: dawarich-redis-secret
+    # existingSecretPasswordKey: redis-password
+  master:
+    persistence:
+      enabled: false
+  replica:
+    replicaCount: 0
+
+# This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+imagePullSecrets: []
+# This is to override the chart name.
+nameOverride: ""
+fullnameOverride: ""
+
+# This section builds out the service account more information can be found here: https://kubernetes.io/docs/concepts/security/service-accounts/
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Automatically mount a ServiceAccount's API credentials?
+  automount: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+# This is for setting Kubernetes Annotations to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+podAnnotations: {}
+# This is for setting Kubernetes Labels to a Pod.
+# For more information checkout: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+podLabels: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# This is for setting up a service more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/
+service:
+  # This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types
+  type: ClusterIP
+  # This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports
+  port: 3000
+
+# This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+# This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+# livenessProbe:
+#   httpGet:
+#     path: /
+#     port: http
+# readinessProbe:
+#   httpGet:
+#     path: /
+#     port: http
+
+# Additional volumes on the output Deployment definition.
+extraVolumes: []
+
+# Additional volumeMounts on the output Deployment definition.
+extraVolumeMounts: []
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

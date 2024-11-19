@@ -1,0 +1,27 @@
+{{- if not .Values.persistence.watched.existingClaim }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ template "dawarich.fullname" . }}-watched
+  labels:
+    app.kubernetes.io/name: {{ include "dawarich.name" . }}
+    helm.sh/chart: {{ include "dawarich.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- with .Values.persistence.watched.annotations }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  accessModes:
+    - {{ .Values.persistence.watched.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.persistence.watched.size | quote }}
+  {{- with .Values.persistence.watched.storageClass }}
+  {{- if (eq "-" .) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ . }}"
+  {{- end }}
+  {{- end }}
+{{- end }}

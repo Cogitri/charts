@@ -1,0 +1,15 @@
+apiVersion: v2
+name: dawarich
+description: "Self-hosted alternative to Google Location History"
+type: application
+version: 0.1.0
+appVersion: "0.16.4"
+dependencies:
+  - name: postgresql
+    version: 16.2.1
+    repository: https://charts.bitnami.com/bitnami
+  - name: redis
+    repository: https://charts.bitnami.com/bitnami
+    version: 20.3.0
+sources:
+  - https://dawarich.app
