@@ -11,9 +11,6 @@ image:
   tag: ""
 
 dawarich:
-  secretKeyBase:
-    value: changeme
-    # existingSecret: dawarich-secret-key-base
   postgres:
       host: postgresql
       username: dawarich

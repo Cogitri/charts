@@ -83,10 +83,6 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{- define "dawarich.secretKeyBaseName" -}}
-{{- default (printf "%s-secret-key-base" (include "dawarich.fullname" .)) .Values.dawarich.secretKeyBase.existingSecret }}
-{{- end }}
-
 {{- define "dawarich.redisSecretName" -}}
 {{- default (printf "%s-redis-secret" (include "dawarich.fullname" .)) .Values.dawarich.redis.existingSecret }}
 {{- end }}
@@ -141,6 +137,4 @@ Create the name of the service account to use
     name: {{ include "dawarich.postgresSecretName" . }}
 - secretRef:
     name: {{ include "dawarich.redisSecretName" . }}
-- secretRef:
-    name: {{ include "dawarich.secretKeyBaseName" . }}
 {{- end }}
