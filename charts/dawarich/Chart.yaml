@@ -2,8 +2,8 @@ apiVersion: v2
 name: dawarich
 description: "Self-hosted alternative to Google Location History"
 type: application
-version: 0.1.0
-appVersion: "0.16.4"
+version: 0.1.1
+appVersion: "0.16.5"
 dependencies:
   - name: postgresql
     version: 16.2.1
