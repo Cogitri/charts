@@ -82,7 +82,7 @@ jobs:
               break
             fi
             echo "Pushing $pkg..."
-            helm push "$pkg" "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/charts"
+            helm push "$pkg" "oci://ghcr.io/$GITHUB_REPOSITORY_OWNER/charts"
           done
 
       - name: Publish charts
