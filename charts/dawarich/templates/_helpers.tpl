@@ -137,30 +137,35 @@ Create the name of the service account to use
 
 {{- define "dawarich.env" -}}
 {{- with .Values.postgresql }}
-DATABASE_HOST: {{ $.Release.Name }}-postgresql
-DATABASE_NAME: {{ .auth.database }}
-DATABASE_USERNAME: {{ default "postgres" .auth.username }}
-DATABASE_PASSWORD:
-  secretKeyRef:
-    {{- if .auth.existingSecret }}
+- name: DATABASE_HOST
+  value: {{ $.Release.Name }}-postgresql
+- name: DATABASE_NAME
+  value: {{ .auth.database }}
+- name: DATABASE_USERNAME
+  value: {{ default "postgres" .auth.username }}
+- name: DATABASE_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      {{- if .auth.existingSecret }}
       name: {{ .auth.existingSecret }}
       key: password
-    {{- else }}
+      {{- else }}
       name: {{ $.Release.Name }}-postgresql
       key: {{ if not .auth.password }}postgres-{{ end }}password
-    {{- end }}
+      {{- end }}
 {{- end }}
 {{- with .Values.redis }}
-A_REDIS_PASSWORD:
-  {{- if .auth.existingSecret }}
-  secretKeyRef:
-    name: {{ .auth.existingSecret }}
-    key: redis-password
-  {{- else }}
-  secretKeyRef:
-    name: {{ $.Release.Name }}-redis
-    key: redis-password
-REDIS_URL: redis://{{ .auth.username }}:$(A_REDIS_PASSWORD)@{{ $.Release.Name }}-redis-master
-  {{- end }}
+- name: A_REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      {{- if .auth.existingSecret }}
+      name: {{ .auth.existingSecret }}
+      key: redis-password
+      {{- else }}
+      name: {{ $.Release.Name }}-redis
+      key: redis-password
+- name: REDIS_URL
+  value: redis://{{ .auth.username }}:$(A_REDIS_PASSWORD)@{{ $.Release.Name }}-redis-master
+{{- end }}
 {{- end }}
 {{- end }}
