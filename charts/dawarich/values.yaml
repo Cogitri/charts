@@ -4,22 +4,13 @@
 
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
-  repository: freikin/dawarich
+  repository: docker.io/freikin/dawarich
   # This sets the pull policy for images.
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
 dawarich:
-  postgres:
-      host: postgresql
-      username: dawarich
-      password: changeme
-      database: dawarich
-      # existingSecret: dawarich-postgresql-secret
-  redis:
-    url: "redis://redis:password@redis:6379/0"
-    # existingSecret: dawarich-redis-secret
   env:
     minMinutesSpentInCity: "60"
     applicationHost: "dawarich.example.org"
@@ -52,8 +43,9 @@ persistence:
 
 postgresql:
   auth:
+    # Either set the postgresql credentials in the helm chart, or provide your own secret.
     database: dawarich
-    postgresPassword: changeme
+    password: changeme
     username: dawarich
     # existingSecret: dawarich-postgresql
   primary:
@@ -65,10 +57,11 @@ postgresql:
 redis:
   auth:
     enabled: true
+    username: dawarich
+    password: changeme
     # Use an existing secret for redis auth. Do this if you're using Argo to manage your instance or otherwise using helm template under the hood
     #     The secret name can vary, but the password key must be redis-password.
     # existingSecret: dawarich-redis-secret
-    # existingSecretPasswordKey: redis-password
   master:
     persistence:
       enabled: false

@@ -133,8 +133,34 @@ Create the name of the service account to use
 {{- define "dawarich.envFrom" -}}
 - configMapRef:
     name: {{ include "dawarich.fullname" . }}-config
-- secretRef:
-    name: {{ include "dawarich.postgresSecretName" . }}
-- secretRef:
-    name: {{ include "dawarich.redisSecretName" . }}
+{{- end }}
+
+{{- define "dawarich.env" -}}
+{{- with .Values.postgresql }}
+DATABASE_HOST: {{ $.Release.Name }}-postgresql
+DATABASE_NAME: {{ .auth.database }}
+DATABASE_USERNAME: {{ default "postgres" .auth.username }}
+DATABASE_PASSWORD:
+  secretKeyRef:
+    {{- if .auth.existingSecret }}
+      name: {{ .auth.existingSecret }}
+      key: password
+    {{- else }}
+      name: {{ $.Release.Name }}-postgresql
+      key: {{ if not .auth.password }}postgres-{{ end }}password
+    {{- end }}
+{{- end }}
+{{- with .Values.redis }}
+A_REDIS_PASSWORD:
+  {{- if .auth.existingSecret }}
+  secretKeyRef:
+    name: {{ .auth.existingSecret }}
+    key: redis-password
+  {{- else }}
+  secretKeyRef:
+    name: {{ $.Release.Name }}-redis
+    key: redis-password
+REDIS_URL: redis://{{ .auth.username }}:$(A_REDIS_PASSWORD)@{{ $.Release.Name }}-redis-master
+  {{- end }}
+{{- end }}
 {{- end }}
