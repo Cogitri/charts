@@ -1,0 +1,19 @@
+{
+    "baseBranches": [
+        "master"
+    ],
+    "rebaseWhen": "conflicted",
+    "labels": [
+        "dependencies"
+    ],
+    "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
+    "automergeStrategy": "merge-commit",
+    "regexManagers": [
+        {
+          "fileMatch": ["\\.yaml$"],
+          "matchStrings": [
+            "# ?renovate datasource=(?<datasource>.+?) depName=(?<depName>.+)\\n.+: [\"']?(?<currentValue>.+?)[\"']?\\n"
+          ]
+        }
+    ]
+}

@@ -1,14 +1,93 @@
-name: release
+name: Release
+
 on:
   push:
-    tags: '*'
+    branches:
+      - master
+
+permissions:
+  contents: write
+  packages: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
 
 jobs:
-  release:
+  release-charts:
+    name: Release Charts
     runs-on: ubuntu-latest
+    env:
+      AUTHOR_USER: chart-bot
+      AUTHOR_EMAIL: 8766773+charts-bot[bot]@users.noreply.github.com
     steps:
-      - uses: actions/checkout@v2
-      - name: Publish Helm charts
-        uses: stefanprodan/helm-gh-pages@master
+      - name: Generate Token
+        id: app-token
+        uses: actions/create-github-app-token@v1
         with:
-          token: ${{ secrets.PUSH_SECRET }}
+          app-id: ${{ secrets.BOT_APP_ID }}
+          private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config user.name "${{ env.AUTHOR_USER }}"
+          git config user.email "${{ env.AUTHOR_EMAIL }}"
+
+      - name: Add Helm repos
+        run: |
+          helm repo add bitnami https://charts.bitnami.com/bitnami
+
+      - name: Install chart-releaser
+        uses: helm/chart-releaser-action@v1.6.0
+        with:
+          install_only: true
+
+      - name: Package charts
+        id: package_charts
+        run: |
+          changed_charts=""
+          for dir in charts/*; do
+            chart_name="$(basename "$dir")"
+            version="$(yq '.version' "$dir/Chart.yaml")"
+            if ! git rev-parse "$chart_name-${version#v}" &>/dev/null; then
+              echo "Packaging chart $chart_name..."
+              cr package --package-path=.cr-release-packages "$dir"
+              changed_charts+="$chart_name,"
+            fi
+          done
+          echo "changed_charts=${changed_charts%,}" >> $GITHUB_OUTPUT
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        if: steps.package_charts.outputs.changed_charts != ''
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ github.token }}
+
+      - name: Push charts to GHCR
+        if: steps.package_charts.outputs.changed_charts != ''
+        run: |
+          for pkg in .cr-release-packages/*; do
+            if [ -z "${pkg:-}" ]; then
+              break
+            fi
+            echo "Pushing $pkg..."
+            helm push "$pkg" "oci://ghcr.io/$GITHUB_REPOSITORY_OWNER/charts"
+          done
+
+      - name: Publish charts
+        uses: helm/chart-releaser-action@v1.6.0
+        if: steps.package_charts.outputs.changed_charts != ''
+        with:
+          skip_packaging: true
+        env:
+          CR_TOKEN: ${{ steps.app-token.outputs.token }}
+          CR_PAGES_BRANCH: helm-index

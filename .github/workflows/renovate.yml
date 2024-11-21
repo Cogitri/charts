@@ -1,0 +1,42 @@
+name: Renovate
+on:
+  push:
+    branches:
+      - master
+  # Allows manual/automated ad-hoc trigger
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: "Override default log level"
+        required: false
+        default: "info"
+        type: string
+  schedule:
+    - cron: "0 0 * * *"
+jobs:
+  build-image:
+    name: Run Renovate Bot
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Get token
+        id: get_token
+        uses: tibdex/github-app-token@v2
+        with:
+          private_key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
+          app_id: ${{ secrets.BOT_APP_ID }}
+
+      - name: Set environment variables
+        run: |
+          echo "LOG_LEVEL=${{ github.event.inputs.logLevel || 'info' }}" >> $GITHUB_ENV
+
+      - name: Renovate Bot GitHub Action
+        uses: renovatebot/github-action@v41.0.3
+        with:
+          token: "${{ steps.get_token.outputs.token }}"
+          configurationFile: .github/renovate-config.js
+          env-regex: "^(?:RENOVATE_\\w+|LOG_LEVEL|GITHUB_COM_TOKEN|NODE_OPTIONS|GHCR_IO_USERNAME|GHCR_IO_PASSWORD)$"
+        env:
+          LOG_LEVEL: "${{ env.LOG_LEVEL }}"
