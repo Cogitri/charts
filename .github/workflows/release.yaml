@@ -80,7 +80,7 @@ jobs:
               break
             fi
             echo "Pushing $pkg..."
-            helm push "$pkg" "oci://ghcr.io/$GITHUB_REPOSITORY_OWNER/charts"
+            helm push "$pkg" "oci://ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/charts"
           done
 
       - name: Publish charts
@@ -90,4 +90,4 @@ jobs:
           skip_packaging: true
         env:
           CR_TOKEN: ${{ steps.app-token.outputs.token }}
-          CR_PAGES_BRANCH: helm-index
+          CR_PAGES_BRANCH: gh-pages
