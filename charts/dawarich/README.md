@@ -23,15 +23,15 @@ To install the chart with the release name `dawarich`
 ### OCI (Recommended)
 
 ```console
-helm install paperless-ngx oci://ghcr.io/gabe565/charts/paperless-ngx
+helm install dawarich oci://ghcr.io/cogitri/charts/dawarich
 ```
 
 ### Traditional
 
 ```console
-helm repo add Cogitri https://cogitri.github.io/charts
+helm repo add cogitri https://charts.cogitri.dev
 helm repo update
-helm install dawarich Cogitri/dawarich
+helm install dawarich cogitri/dawarich
 ```
 
 ## Values
