@@ -164,8 +164,8 @@ Create the name of the service account to use
       {{- else }}
       name: {{ $.Release.Name }}-redis
       key: redis-password
+      {{- end }}
 - name: REDIS_URL
   value: redis://{{ .auth.username }}:$(A_REDIS_PASSWORD)@{{ $.Release.Name }}-redis-master
-{{- end }}
 {{- end }}
 {{- end }}
