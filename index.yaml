@@ -3,6 +3,25 @@ entries:
   dawarich:
   - apiVersion: v2
     appVersion: 0.16.8
+    created: "2024-11-23T12:46:37.011001594Z"
+    dependencies:
+    - name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 16.2.2
+    - name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 20.3.0
+    description: Self-hosted alternative to Google Location History
+    digest: 38817393725cdb820f6d8bfc96e0d797e045c4ac6dac458adab61c82a5b200a5
+    name: dawarich
+    sources:
+    - https://dawarich.app
+    type: application
+    urls:
+    - https://github.com/Cogitri/charts/releases/download/dawarich-0.2.5/dawarich-0.2.5.tgz
+    version: 0.2.5
+  - apiVersion: v2
+    appVersion: 0.16.8
     created: "2024-11-21T14:56:36.063663934Z"
     dependencies:
     - name: postgresql
@@ -115,4 +134,4 @@ entries:
     urls:
     - https://Cogitri.github.io/charts/dawarich-0.1.0.tgz
     version: 0.1.0
-generated: "2024-11-21T14:56:36.063682669Z"
+generated: "2024-11-23T12:46:37.011022754Z"
