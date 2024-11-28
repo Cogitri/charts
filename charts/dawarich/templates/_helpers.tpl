@@ -169,3 +169,12 @@ Create the name of the service account to use
   value: redis://{{ .auth.username }}:$(A_REDIS_PASSWORD)@{{ $.Release.Name }}-redis-master
 {{- end }}
 {{- end }}
+
+{{- define "dawarich.initContainers" }}
+- name: wait-for-postgres
+  image: busybox
+  command: ['sh', '-c', 'until nc -z {{ printf "%s-postgresql" .Release.Name }} 5432; do echo waiting for postgres; sleep 2; done;']
+- name: wait-for-redis
+  image: busybox
+  command: ['sh', '-c', 'until nc -z {{ printf "%s-redis-master" .Release.Name }} 6379; do echo waiting for redis; sleep 2; done;']
+{{- end }}

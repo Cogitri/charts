@@ -27,6 +27,8 @@ spec:
       serviceAccountName: {{ include "dawarich.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{ include "dawarich.initContainers" . | nindent 10 }}
       containers:
         - name: {{ .Chart.Name }}
           command: ['sh', '-c', 'dev-entrypoint.sh bin/dev']
