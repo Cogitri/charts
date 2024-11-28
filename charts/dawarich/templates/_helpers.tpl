@@ -94,13 +94,13 @@ Create the name of the service account to use
 {{- define "dawarich.volumes" -}}
 - name: gem-cache
   persistentVolumeClaim:
-    claimName: {{ include "dawarich.fullname" . }}-gem-cache
+    claimName: {{ default (printf "%s-gem-cache" (include "dawarich.fullname" .)) .Values.persistence.gemCache.existingClaim }}
 - name: public
   persistentVolumeClaim:
-    claimName: {{ include "dawarich.fullname" . }}-public
+    claimName: {{ default (printf "%s-public" (include "dawarich.fullname" .)) .Values.persistence.public.existingClaim }}
 - name: watched
   persistentVolumeClaim:
-    claimName: {{ include "dawarich.fullname" . }}-watched
+    claimName: {{ default (printf "%s-watched" (include "dawarich.fullname" .)) .Values.persistence.watched.existingClaim }}
 {{- if .Values.dawarich.extraVolumes }}
 {{ toYaml .Values.dawarich.extraVolumes }}
 {{- end }}
