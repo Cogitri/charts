@@ -1,3 +1,4 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -5,6 +6,7 @@ metadata:
   labels:
     {{- include "dawarich.labels" . | nindent 4 }}
 spec:
+  replicas: {{ .Values.dawarich.replicaCount }}
   selector:
     matchLabels:
       {{- include "dawarich.selectorLabels" . | nindent 6 }}
@@ -52,6 +54,55 @@ spec:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:
             {{- include "dawarich.volumeMounts" . | trim | nindent 12 }}
+      volumes:
+        {{- include "dawarich.volumes" . | trim | nindent 8 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dawarich.fullname" . }}-sidekiq
+  labels:
+    {{- include "dawarich.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.sidekiq.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "dawarich.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "dawarich.labels" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "dawarich.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{ include "dawarich.initContainers" . | nindent 10 }}
+      containers:
         - name: {{ .Chart.Name }}-sidekiq
           command: ['sh', '-c', 'dev-entrypoint.sh sidekiq']
           envFrom:
@@ -62,12 +113,22 @@ spec:
             {{- toYaml .Values.securityContext | nindent 12 }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - "bundle exec sidekiqmon processes | grep $${HOSTNAME}"
+          readinessProbe:
+            exec:
+              command:
+                - "sh"
+                - "-c"
+                - "bundle exec sidekiqmon processes | grep $${HOSTNAME}"
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-          {{- with .Values.volumeMounts }}
           volumeMounts:
             {{- include "dawarich.sidekiqVolumeMounts" . | trim | nindent 12 }}
-          {{- end }}
       volumes:
         {{- include "dawarich.volumes" . | trim | nindent 8 }}
       {{- with .Values.nodeSelector }}

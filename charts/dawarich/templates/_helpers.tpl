@@ -92,42 +92,60 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "dawarich.volumes" -}}
+{{- if .Values.persistence.gemCache.enabled }}
 - name: gem-cache
   persistentVolumeClaim:
     claimName: {{ default (printf "%s-gem-cache" (include "dawarich.fullname" .)) .Values.persistence.gemCache.existingClaim }}
+{{- end }}
+{{- if .Values.persistence.public.enabled }}
 - name: public
   persistentVolumeClaim:
     claimName: {{ default (printf "%s-public" (include "dawarich.fullname" .)) .Values.persistence.public.existingClaim }}
+{{- end }}
+{{- if .Values.persistence.watched.enabled }}
 - name: watched
   persistentVolumeClaim:
     claimName: {{ default (printf "%s-watched" (include "dawarich.fullname" .)) .Values.persistence.watched.existingClaim }}
+{{- end }}
 {{- if .Values.dawarich.extraVolumes }}
-{{ toYaml .Values.dawarich.extraVolumes }}
+{{ toYaml .Values.dawarich.extraVolumes | indent 2 }}
 {{- end }}
 {{- end }}
 
 {{- define "dawarich.volumeMounts" -}}
+{{- if .Values.persistence.gemCache.enabled }}
 - name: gem-cache
   mountPath: /usr/local/bundle/gems
+{{- end }}
+{{- if .Values.persistence.public.enabled }}
 - name: public
   mountPath: /var/app/public
+{{- end }}
+{{- if .Values.persistence.watched.enabled }}
 - name: watched
   mountPath: /var/app/tmp/imports/watched
+{{- end }}
 {{- if .Values.dawarich.extraVolumeMounts }}
-{{ toYaml .Values.dawarich.extraVolumeMounts }}
+{{ toYaml .Values.dawarich.extraVolumeMounts | indent 2 }}
 {{- end }}
 {{- end }}
 
 {{- define "dawarich.sidekiqVolumeMounts" -}}
+{{- if .Values.persistence.gemCache.enabled }}
 - name: gem-cache
   mountPath: /usr/local/bundle/gems
   readonly: true
+{{- end }}
+{{- if .Values.persistence.public.enabled }}
 - name: public
   mountPath: /var/app/public
   readonly: true
+{{- end }}
+{{- if .Values.persistence.watched.enabled }}
 - name: watched
   mountPath: /var/app/tmp/imports/watched
   readonly: true
+{{- end }}
 {{- end }}
 
 {{- define "dawarich.envFrom" -}}

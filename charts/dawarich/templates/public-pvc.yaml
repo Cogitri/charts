@@ -1,4 +1,4 @@
-{{- if not .Values.persistence.public.existingClaim }}
+{{- if and (eq .Values.persistence.public.enabled true) (not (empty .Values.persistence.public.existingClaim)) }}
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
