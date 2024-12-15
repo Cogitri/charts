@@ -67,19 +67,19 @@ sidekiq:
       command:
         - "sh"
         - "-c"
-        - "bundle exec sidekiqmon processes | grep $${HOSTNAME}"
+        - "bundle exec sidekiqmon processes | grep ${HOSTNAME}"
   readinessProbe:
     exec:
       command:
         - "sh"
         - "-c"
-        - "bundle exec sidekiqmon processes | grep $${HOSTNAME}"
+        - "bundle exec sidekiqmon processes | grep ${HOSTNAME}"
   startupProbe:
     exec:
       command:
         - "sh"
         - "-c"
-        - "bundle exec sidekiqmon processes | grep $${HOSTNAME}"
+        - "bundle exec sidekiqmon processes | grep ${HOSTNAME}"
     initialDelaySeconds: 30
     periodSeconds: 10
     failureThreshold: 10
