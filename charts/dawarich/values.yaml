@@ -11,6 +11,8 @@ image:
   tag: ""
 
 dawarich:
+  replicaCount: 1
+
   env:
     minMinutesSpentInCity: "60"
     applicationHost: "dawarich.example.org"
@@ -21,20 +23,26 @@ dawarich:
     photonApiHost: "photon.komoot.io"
     photonApiUseHttps: "true"
 
+sidekiq:
+  replicaCount: 1
+
 persistence:
   gemCache:
+    enabled: true
     existingClaim: ""
     annotations: []
     accessMode: "ReadWriteOnce"
     storageClass: ""
     size: 1Gi
   public:
+    enabled: true
     existingClaim: ""
     annotations: []
     accessMode: "ReadWriteOnce"
     storageClass: ""
     size: 10Gi
   watched:
+    enabled: true
     existingClaim: ""
     annotations: []
     accessMode: "ReadWriteOnce"
@@ -142,11 +150,11 @@ resources: {}
 # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
 livenessProbe:
   httpGet:
-    path: /
+    path: /api/v1/health
     port: http
 readinessProbe:
   httpGet:
-    path: /
+    path: /api/v1/health
     port: http
 
 # Additional volumes on the output Deployment definition.
