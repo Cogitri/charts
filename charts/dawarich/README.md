@@ -40,7 +40,9 @@ Some of the most important values are documented below. Checkout the [values.yam
 
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
-| dawarich.env | object | See [values.yaml](./values.yaml) | Environment variables used for configuration of Dawarich |
+| env | object | See [values.yaml](./values.yaml) | Environment variables used for configuration of Dawarich |
+| dawarich | object | See [values.yaml](./values.yaml) | Pod configuration for the Dawarich deployment |
+| sidekiq | object | See [values.yaml](./values.yaml) | Pod configuration for the Sidekiq deployment |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | image.repository | string | `"docker.io/freikin/dawarich"` | Image repository |
 | ingress | object | See [values.yaml](./values.yaml) | Enable and configure ingress settings for the chart under this key. |

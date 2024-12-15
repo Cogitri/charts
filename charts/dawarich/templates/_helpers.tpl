@@ -55,7 +55,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "dawarich.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "dawarich.name" . }}
+app.kubernetes.io/name: {{ include "dawarich.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 

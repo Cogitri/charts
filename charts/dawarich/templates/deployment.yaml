@@ -12,10 +12,11 @@ spec:
       {{- include "dawarich.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        config-hash: {{ include (print $.Template.BasePath "/config-map.yaml") . | sha256sum }}
       labels:
         {{- include "dawarich.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -47,24 +48,26 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            {{- toYaml .Values.dawarich.livenessProbe | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            {{- toYaml .Values.dawarich.readinessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.dawarich.startupProbe | nindent 12 }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.dawarich.resources | nindent 12 }}
           volumeMounts:
             {{- include "dawarich.volumeMounts" . | trim | nindent 12 }}
       volumes:
         {{- include "dawarich.volumes" . | trim | nindent 8 }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.dawarich.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.dawarich.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.dawarich.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
@@ -75,20 +78,21 @@ kind: Deployment
 metadata:
   name: {{ include "dawarich.fullname" . }}-sidekiq
   labels:
-    {{- include "dawarich.labels" . | nindent 4 }}
+    {{- include "dawarich.labelsSidekiq" . | nindent 4 }}
 spec:
   replicas: {{ .Values.sidekiq.replicaCount }}
   selector:
     matchLabels:
-      {{- include "dawarich.selectorLabels" . | nindent 6 }}
+      {{- include "dawarich.selectorLabelsSidekiq" . | nindent 6 }}
   template:
     metadata:
-      {{- with .Values.podAnnotations }}
       annotations:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
+        {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        config-hash: {{ include (print $.Template.BasePath "/config-map.yaml") . | sha256sum }}
       labels:
-        {{- include "dawarich.labels" . | nindent 8 }}
+        {{- include "dawarich.labelsSidekiq" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -114,32 +118,26 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           livenessProbe:
-            exec:
-              command:
-                - "sh"
-                - "-c"
-                - "bundle exec sidekiqmon processes | grep $${HOSTNAME}"
+            {{- toYaml .Values.sidekiq.livenessProbe | nindent 12 }}
           readinessProbe:
-            exec:
-              command:
-                - "sh"
-                - "-c"
-                - "bundle exec sidekiqmon processes | grep $${HOSTNAME}"
+            {{- toYaml .Values.sidekiq.readinessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.sidekiq.startupProbe | nindent 12 }}
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.sidekiq.resources | nindent 12 }}
           volumeMounts:
             {{- include "dawarich.sidekiqVolumeMounts" . | trim | nindent 12 }}
       volumes:
         {{- include "dawarich.volumes" . | trim | nindent 8 }}
-      {{- with .Values.nodeSelector }}
+      {{- with .Values.sidekiq.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
+      {{- with .Values.sidekiq.affinity }}
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      {{- with .Values.tolerations }}
+      {{- with .Values.sidekiq.tolerations }}
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
