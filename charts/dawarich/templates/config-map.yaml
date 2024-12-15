@@ -6,4 +6,4 @@ metadata:
     {{- include "dawarich.labels" . | nindent 4 }}
 data:
   RAILS_ENV: "development"
-  {{- include "dawarich.environmentSetup" (dict "environment" .Values.dawarich.env)}}
+  {{- include "dawarich.environmentSetup" (dict "environment" .Values.env)}}
