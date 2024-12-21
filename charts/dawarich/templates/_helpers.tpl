@@ -134,17 +134,17 @@ Create the name of the service account to use
 {{- if .Values.persistence.gemCache.enabled }}
 - name: gem-cache
   mountPath: /usr/local/bundle/gems
-  readonly: true
+  readOnly: true
 {{- end }}
 {{- if .Values.persistence.public.enabled }}
 - name: public
   mountPath: /var/app/public
-  readonly: true
+  readOnly: true
 {{- end }}
 {{- if .Values.persistence.watched.enabled }}
 - name: watched
   mountPath: /var/app/tmp/imports/watched
-  readonly: true
+  readOnly: true
 {{- end }}
 {{- end }}
 

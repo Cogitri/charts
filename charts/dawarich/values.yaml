@@ -137,6 +137,17 @@ postgresql:
       enabled: false
       # storageClass: ""
       # size: 8Gi
+    # https://github.com/Freika/dawarich/pull/569
+    extendedConfiguration: |-
+      shared_buffers = 512MB
+      work_mem = 128MB
+      maintenance_work_mem = 128MB
+      max_wal_size = 1GB
+      min_wal_size = 80MB
+      max_parallel_workers_per_gather = 4
+  shmVolume:
+    # As per upstream
+    sizeLimit: 1Gi
 
 redis:
   auth:
