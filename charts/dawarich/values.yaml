@@ -16,8 +16,6 @@ keyBase:
 
 env:
   minMinutesSpentInCity: "60"
-  # Make sure to keep localhost for livenessProbes
-  applicationHosts: "localhost,dawarich.example.org"
   timeZone: "Europe/Berlin"
   backgroundProcessingConcurrency: "10"
   applicationProtocol: "http"
@@ -29,32 +27,7 @@ env:
 
 dawarich:
   replicaCount: 1
-
-  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
-  livenessProbe:
-    httpGet:
-      path: /api/v1/health
-      port: http
-      httpHeaders:
-        - name: Host
-          value: "localhost"
-  readinessProbe:
-    httpGet:
-      path: /api/v1/health
-      port: http
-      httpHeaders:
-        - name: Host
-          value: "localhost"
-  startupProbe:
-    httpGet:
-      path: /api/v1/health
-      port: http
-      httpHeaders:
-        - name: Host
-          value: "localhost"
-    initialDelaySeconds: 30
-    periodSeconds: 10
-    failureThreshold: 10
+  host: "dawarich.example.org"
 
   resources: {}
     # We usually recommend not to specify default resources and to leave this as a conscious

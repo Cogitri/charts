@@ -49,11 +49,11 @@ spec:
               containerPort: {{ .Values.service.port }}
               protocol: TCP
           livenessProbe:
-            {{- toYaml .Values.dawarich.livenessProbe | nindent 12 }}
+            {{- include "dawarich.livenessProbe" . | nindent 12 }}
           readinessProbe:
-            {{- toYaml .Values.dawarich.readinessProbe | nindent 12 }}
+            {{- include "dawarich.readinessProbe" . | nindent 12 }}
           startupProbe:
-            {{- toYaml .Values.dawarich.startupProbe | nindent 12 }}
+            {{- include "dawarich.startupProbe" . | nindent 12 }}
           resources:
             {{- toYaml .Values.dawarich.resources | nindent 12 }}
           volumeMounts:

@@ -138,6 +138,8 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "dawarich.env" -}}
+- name: APPLICATION_HOSTS
+  value: {{ .Values.dawarich.host }}
 {{- with .Values.postgresql }}
 - name: DATABASE_HOST
   value: {{ $.Release.Name }}-postgresql
@@ -187,4 +189,35 @@ Create the name of the service account to use
 - name: wait-for-redis
   image: busybox
   command: ['sh', '-c', 'until nc -z {{ printf "%s-redis-master" .Release.Name }} 6379; do echo waiting for redis; sleep 2; done;']
+{{- end }}
+
+
+{{- define "dawarich.livenessProbe" }}
+httpGet:
+  path: /api/v1/health
+  port: http
+  httpHeaders:
+    - name: Host
+      value: {{ .Values.dawarich.host }}
+{{- end }}
+
+{{- define "dawarich.readinessProbe" }}
+httpGet:
+  path: /api/v1/health
+  port: http
+  httpHeaders:
+    - name: Host
+      value: {{ .Values.dawarich.host }}
+{{- end }}
+
+{{- define "dawarich.startupProbe" }}
+httpGet:
+  path: /api/v1/health
+  port: http
+  httpHeaders:
+    - name: Host
+      value: {{ .Values.dawarich.host }}
+initialDelaySeconds: 30
+periodSeconds: 10
+failureThreshold: 10
 {{- end }}
