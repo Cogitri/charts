@@ -7,7 +7,7 @@ version: 0.5.4
 appVersion: "0.21.0"
 dependencies:
   - name: postgresql
-    version: 16.3.0
+    version: 16.4.14
     repository: https://charts.bitnami.com/bitnami
   - name: redis
     repository: https://charts.bitnami.com/bitnami
