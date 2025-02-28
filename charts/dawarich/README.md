@@ -46,7 +46,6 @@ Some of the most important values are documented below. Checkout the [values.yam
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | image.repository | string | `"docker.io/freikin/dawarich"` | Image repository |
 | ingress | object | See [values.yaml](./values.yaml) | Enable and configure ingress settings for the chart under this key. |
-| persistence.gemCache | object | See [values.yaml](./values.yaml) | Configure gem-cache volume settings for the chart under this key. |
 | persistence.public | object | See [values.yaml](./values.yaml) | Configure public volume settings for the chart under this key. |
 | persistence.export | object | See [values.yaml](./values.yaml) | Configure watched volume settings for the chart under this key. |
 | postgresql | object | See [values.yaml](./values.yaml) | Configure postgresql database subchart under this key. Dawarich will automatically be configured to use the credentials supplied to postgresql. [[ref]](https://github.com/bitnami/charts/tree/main/bitnami/postgresql) |

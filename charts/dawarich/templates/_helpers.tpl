@@ -92,11 +92,6 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "dawarich.volumes" -}}
-{{- if .Values.persistence.gemCache.enabled }}
-- name: gem-cache
-  persistentVolumeClaim:
-    claimName: {{ default (printf "%s-gem-cache" (include "dawarich.fullname" .)) .Values.persistence.gemCache.existingClaim }}
-{{- end }}
 {{- if .Values.persistence.public.enabled }}
 - name: public
   persistentVolumeClaim:
@@ -113,10 +108,6 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "dawarich.volumeMounts" -}}
-{{- if .Values.persistence.gemCache.enabled }}
-- name: gem-cache
-  mountPath: /usr/local/bundle/gems
-{{- end }}
 {{- if .Values.persistence.public.enabled }}
 - name: public
   mountPath: /var/app/public
@@ -131,10 +122,6 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "dawarich.sidekiqVolumeMounts" -}}
-{{- if .Values.persistence.gemCache.enabled }}
-- name: gem-cache
-  mountPath: /usr/local/bundle/gems
-{{- end }}
 {{- if .Values.persistence.public.enabled }}
 - name: public
   mountPath: /var/app/public
@@ -175,14 +162,22 @@ Create the name of the service account to use
     secretKeyRef:
       {{- if .auth.existingSecret }}
       name: {{ .auth.existingSecret }}
-      key: redis-password
       {{- else }}
       name: {{ $.Release.Name }}-redis
-      key: redis-password
       {{- end }}
+      key: redis-password
 - name: REDIS_URL
   value: redis://{{ .auth.username }}:$(A_REDIS_PASSWORD)@{{ $.Release.Name }}-redis-master
 {{- end }}
+- name: SECRET_KEY_BASE
+  valueFrom:
+    secretKeyRef:
+      {{- if .Values.keyBase.existingSecret }}
+      name: {{ .Values.keyBase.existingSecret }}
+      {{- else }}
+      name: {{ include "dawarich.fullname" . }}-secret-keybase
+      {{- end }}
+      key: value
 {{- end }}
 
 {{- define "dawarich.initContainers" }}

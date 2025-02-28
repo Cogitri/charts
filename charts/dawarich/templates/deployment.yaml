@@ -34,7 +34,8 @@ spec:
         {{ include "dawarich.initContainers" . | nindent 10 }}
       containers:
         - name: {{ .Chart.Name }}
-          command: ['sh', '-c', 'dev-entrypoint.sh bin/dev']
+          command: ['web-entrypoint.sh']
+          args: ['bin/rails', 'server', '-p', '3000', '-b', '::']
           envFrom:
             {{- include "dawarich.envFrom" . | nindent 12 }}
           env:
@@ -108,7 +109,8 @@ spec:
         {{ include "dawarich.initContainers" . | nindent 10 }}
       containers:
         - name: {{ .Chart.Name }}-sidekiq
-          command: ['sh', '-c', 'dev-entrypoint.sh sidekiq']
+          command: ['sidekiq-entrypoint.sh']
+          args: ['bundle', 'exec', 'sidekiq']
           envFrom:
             {{- include "dawarich.envFrom" . | nindent 12 }}
           env:

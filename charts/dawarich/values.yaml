@@ -10,15 +10,22 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
+keyBase:
+  # existingSecret: dawarich-secret-keybase
+  value: changeme
+
 env:
   minMinutesSpentInCity: "60"
-  applicationHost: "dawarich.example.org"
+  # Make sure to keep localhost for livenessProbes
+  applicationHosts: "localhost,dawarich.example.org"
   timeZone: "Europe/Berlin"
   backgroundProcessingConcurrency: "10"
   applicationProtocol: "http"
   distanceUnit: "km"
-  photonApiHost: "photon.komoot.io"
-  photonApiUseHttps: "true"
+  prometheusExporterEnabled: "false"
+  prometheusExporterHost: "127.0.0.1"
+  prometheusExporterPort: "9394"
+  railsLogToStdout: "true"
 
 dawarich:
   replicaCount: 1
@@ -28,14 +35,23 @@ dawarich:
     httpGet:
       path: /api/v1/health
       port: http
+      httpHeaders:
+        - name: Host
+          value: "localhost"
   readinessProbe:
     httpGet:
       path: /api/v1/health
       port: http
+      httpHeaders:
+        - name: Host
+          value: "localhost"
   startupProbe:
     httpGet:
       path: /api/v1/health
       port: http
+      httpHeaders:
+        - name: Host
+          value: "localhost"
     initialDelaySeconds: 30
     periodSeconds: 10
     failureThreshold: 10
@@ -103,13 +119,6 @@ sidekiq:
   affinity: {}
 
 persistence:
-  gemCache:
-    enabled: true
-    existingClaim: ""
-    annotations: []
-    accessMode: "ReadWriteOnce"
-    storageClass: ""
-    size: 1Gi
   public:
     enabled: true
     existingClaim: ""
