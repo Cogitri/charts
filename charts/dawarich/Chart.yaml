@@ -2,7 +2,7 @@ apiVersion: v2
 name: dawarich
 description: "Self-hosted alternative to Google Location History"
 type: application
-version: 0.5.4
+version: 0.6.0
 # renovate datasource=docker depName=docker.io/freikin/dawarich
 appVersion: "0.23.5"
 dependencies:
