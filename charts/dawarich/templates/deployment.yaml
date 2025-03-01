@@ -39,8 +39,6 @@ spec:
             - -c
             - |
               set -e
-              # psql -c "CREATE EXTENSION IF NOT EXISTS postgis;"
-              # echo "PostGIS extensions created successfully."
               psql -c "ALTER USER ${DB_USER} WITH SUPERUSER;"
           env:
             - name: PGHOST
