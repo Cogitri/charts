@@ -103,7 +103,7 @@ Create the name of the service account to use
     claimName: {{ default (printf "%s-watched" (include "dawarich.fullname" .)) .Values.persistence.watched.existingClaim }}
 {{- else }}
 - name: watched
-  type: emptyDir
+  emptyDir: {}
 {{- end }}
 {{- if .Values.dawarich.extraVolumes }}
 {{ toYaml .Values.dawarich.extraVolumes | indent 2 }}
