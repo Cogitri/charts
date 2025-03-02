@@ -46,17 +46,14 @@ spec:
             - name: PGUSER
               value: postgres
             - name: PGPASSWORD
-              {{- if and .Values.postgresql.auth.existingSecret (ne .auth.existingSecret "") }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Values.postgresql.auth.existingSecret }}
+                  name: {{- if .Values.postgresql.auth.existingSecret }}
+                    {{ .Values.postgresql.auth.existingSecret }}
+                  {{- else }}
+                    {{ $.Release.Name }}-postgresql
+                  {{- end }}
                   key: postgres-password
-              {{- else }}
-              valueFrom:
-                secretKeyRef:
-                  name: {{ $.Release.Name }}-postgresql
-                  key: postgres-password
-              {{- end }}
             - name: DB_USER
               value: {{ .Values.postgresql.auth.username }}
       containers:
