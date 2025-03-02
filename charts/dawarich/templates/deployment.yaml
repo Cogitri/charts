@@ -46,10 +46,10 @@ spec:
             - name: PGUSER
               value: postgres
             - name: PGPASSWORD
-              {{- if and .auth.existingSecret (ne .auth.existingSecret "") }}
+              {{- if and .Values.postgresql.auth.existingSecret (ne .auth.existingSecret "") }}
               valueFrom:
                 secretKeyRef:
-                  name: {{ .auth.existingSecret }}
+                  name: {{ .Values.postgresql.auth.existingSecret }}
                   key: postgres-password
               {{- else }}
               valueFrom:
