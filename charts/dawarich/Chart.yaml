@@ -2,15 +2,17 @@ apiVersion: v2
 name: dawarich
 description: "Self-hosted alternative to Google Location History"
 type: application
-version: 0.6.1
+version: 0.6.2
 # renovate datasource=docker depName=docker.io/freikin/dawarich
 appVersion: "0.24.1"
 dependencies:
   - name: postgresql
     version: 16.4.14
     repository: https://charts.bitnami.com/bitnami
+    condition: postgresql.enabled
   - name: redis
     repository: https://charts.bitnami.com/bitnami
     version: 20.11.0
+    condition: redis.enabled
 sources:
   - https://dawarich.app
