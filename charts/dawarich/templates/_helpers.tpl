@@ -159,53 +159,83 @@ Create the name of the service account to use
   value: {{ .Values.dawarich.host }}
 {{- with .Values.postgresql }}
 - name: DATABASE_HOST
-  value: {{ $.Release.Name }}-postgresql
+  value: "{{ tpl $.Values.postgresql.host $ }}"
+- name: DATABASE_PORT
+  value: "{{ .port }}"
 - name: DATABASE_NAME
-  value: {{ .auth.database }}
+  value: "{{ .auth.database }}"
 - name: DATABASE_USERNAME
-  value: {{ default "postgres" .auth.username }}
+  valueFrom:
+    secretKeyRef:
+      {{- if .auth.existingSecret }}
+      name: {{ .auth.existingSecret }}
+      key: username
+      {{- else }}
+      name: {{ include "dawarich.fullname" $ }}
+      key: postgresUsername
+      {{- end }}
 - name: DATABASE_PASSWORD
   valueFrom:
     secretKeyRef:
       {{- if .auth.existingSecret }}
       name: {{ .auth.existingSecret }}
       key: password
+      {{- else if not .enabled }}
+      name: {{ include "dawarich.fullname" $ }}
+      key: postgresPassword
       {{- else }}
       name: {{ $.Release.Name }}-postgresql
-      key: {{ if not .auth.password }}postgres-{{ end }}password
+      key: password
       {{- end }}
 {{- end }}
 {{- with .Values.redis }}
+{{- if .auth.enabled }}
 - name: A_REDIS_PASSWORD
   valueFrom:
     secretKeyRef:
       {{- if .auth.existingSecret }}
       name: {{ .auth.existingSecret }}
+      key: redis-password
+      {{- else if not .enabled }}
+      name: {{ include "dawarich.fullname" $ }}
+      key: redisPassword
       {{- else }}
       name: {{ $.Release.Name }}-redis
-      {{- end }}
       key: redis-password
+      {{- end }}
+{{- end }}
 - name: REDIS_URL
-  value: redis://{{ .auth.username }}:$(A_REDIS_PASSWORD)@{{ $.Release.Name }}-redis-master
+  value: redis://{{ if .auth.enabled }}:$(A_REDIS_PASSWORD)@{{ end }}{{ tpl $.Values.redis.host $ }}:{{ .port }}
 {{- end }}
 - name: SECRET_KEY_BASE
   valueFrom:
     secretKeyRef:
       {{- if .Values.keyBase.existingSecret }}
       name: {{ .Values.keyBase.existingSecret }}
-      {{- else }}
-      name: {{ include "dawarich.fullname" . }}-secret-keybase
-      {{- end }}
       key: value
+      {{- else }}
+      name: {{ include "dawarich.fullname" . }}
+      key: keyBase
+      {{- end }}
 {{- end }}
 
 {{- define "dawarich.initContainers" }}
 - name: wait-for-postgres
   image: busybox
-  command: ['sh', '-c', 'until nc -z {{ printf "%s-postgresql" .Release.Name }} 5432; do echo waiting for postgres; sleep 2; done;']
+  env:
+    - name: DATABASE_HOST
+      value: "{{ tpl .Values.postgresql.host . }}"
+    - name: DATABASE_PORT
+      value: "{{ .Values.postgresql.port }}"
+  command: ['sh', '-c', 'until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do echo waiting for postgres; sleep 2; done;']
 - name: wait-for-redis
   image: busybox
-  command: ['sh', '-c', 'until nc -z {{ printf "%s-redis-master" .Release.Name }} 6379; do echo waiting for redis; sleep 2; done;']
+  env:
+    - name: REDIS_HOST
+      value: "{{ tpl .Values.redis.host . }}"
+    - name: REDIS_PORT
+      value: "{{ .Values.redis.port }}"
+  command: ['sh', '-c', 'until nc -z "$REDIS_HOST" "$REDIS_PORT"; do echo waiting for redis; sleep 2; done;']
 {{- end }}
 
 

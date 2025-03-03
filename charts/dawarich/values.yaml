@@ -11,7 +11,7 @@ image:
   tag: ""
 
 keyBase:
-  # existingSecret: dawarich-secret-keybase
+  existingSecret: null
   value: changeme
 
 env:
@@ -118,13 +118,16 @@ persistence:
     size: 5Gi
 
 postgresql:
+  enabled: true
+  host: '{{ $.Release.Name }}-postgresql'
+  port: 5432
   auth:
     # Either set the postgresql credentials in the helm chart, or provide your own secret.
     database: dawarich
     password: changeme
     username: dawarich
     postgresPassword: changeme
-    # existingSecret: dawarich-postgresql
+    existingSecret: null
   primary:
     persistence:
       enabled: false
@@ -143,12 +146,15 @@ postgresql:
     sizeLimit: 1Gi
 
 redis:
+  enabled: true
+  host: '{{ $.Release.Name }}-redis-master'
+  port: 6379
   auth:
     enabled: true
     password: changeme
     # Use an existing secret for redis auth. Do this if you're using Argo to manage your instance or otherwise using helm template under the hood
     #     The secret name can vary, but the password key must be redis-password.
-    # existingSecret: dawarich-redis-secret
+    existingSecret: null
   master:
     persistence:
       enabled: false
