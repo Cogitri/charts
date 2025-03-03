@@ -101,6 +101,9 @@ Create the name of the service account to use
 - name: watched
   persistentVolumeClaim:
     claimName: {{ default (printf "%s-watched" (include "dawarich.fullname" .)) .Values.persistence.watched.existingClaim }}
+{{- else }}
+- name: watched
+  emptyDir: {}
 {{- end }}
 {{- if .Values.dawarich.extraVolumes }}
 {{ toYaml .Values.dawarich.extraVolumes | indent 2 }}
@@ -112,10 +115,8 @@ Create the name of the service account to use
 - name: public
   mountPath: /var/app/public
 {{- end }}
-{{- if .Values.persistence.watched.enabled }}
 - name: watched
   mountPath: /var/app/tmp/imports/watched
-{{- end }}
 {{- if .Values.dawarich.extraVolumeMounts }}
 {{ toYaml .Values.dawarich.extraVolumeMounts | indent 2 }}
 {{- end }}

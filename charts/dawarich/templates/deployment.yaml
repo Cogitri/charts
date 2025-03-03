@@ -31,7 +31,31 @@ spec:
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
-        {{ include "dawarich.initContainers" . | nindent 10 }}
+        {{ include "dawarich.initContainers" . | nindent 8 }}
+        - name: postgis-init
+          image: bitnami/postgresql:latest
+          command:
+            - /bin/sh
+            - -c
+            - |
+              set -e
+              psql -c "ALTER USER ${DB_USER} WITH SUPERUSER;"
+          env:
+            - name: PGHOST
+              value: {{ include "dawarich.fullname" . }}-postgresql
+            - name: PGUSER
+              value: postgres
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{- if .Values.postgresql.auth.existingSecret }}
+                    {{ .Values.postgresql.auth.existingSecret }}
+                  {{- else }}
+                    {{ $.Release.Name }}-postgresql
+                  {{- end }}
+                  key: postgres-password
+            - name: DB_USER
+              value: {{ .Values.postgresql.auth.username }}
       containers:
         - name: {{ .Chart.Name }}
           command: ['web-entrypoint.sh']
