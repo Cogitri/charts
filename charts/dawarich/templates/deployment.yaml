@@ -32,6 +32,7 @@ spec:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       initContainers:
         {{ include "dawarich.initContainers" . | nindent 8 }}
+        {{- if .Values.postgresql.enabled }}
         - name: postgis-init
           image: bitnami/postgresql:latest
           command:
@@ -56,6 +57,7 @@ spec:
                   key: postgres-password
             - name: DB_USER
               value: {{ .Values.postgresql.auth.username }}
+        {{- end }}  
       containers:
         - name: {{ .Chart.Name }}
           command: ['web-entrypoint.sh']
