@@ -56,7 +56,7 @@ To use an external Postgres or Redis instance, set `.enabled: false` with the ex
 ```yaml
 postgresql:
   enabled: false
-  externalHost: postgresql
+  externalHost: my.postgres.cluster
   externalPort: 5432
   auth:
     database: dawarich
