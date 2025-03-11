@@ -11,6 +11,6 @@ dependencies:
     repository: https://charts.bitnami.com/bitnami
   - name: redis
     repository: https://charts.bitnami.com/bitnami
-    version: 20.11.2
+    version: 20.11.3
 sources:
   - https://dawarich.app
