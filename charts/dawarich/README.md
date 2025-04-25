@@ -46,7 +46,6 @@ Some of the most important values are documented below. Checkout the [values.yam
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | image.repository | string | `"docker.io/freikin/dawarich"` | Image repository |
 | ingress | object | See [values.yaml](./values.yaml) | Enable and configure ingress settings for the chart under this key. |
-| persistence.public | object | See [values.yaml](./values.yaml) | Configure public volume settings for the chart under this key. |
 | persistence.export | object | See [values.yaml](./values.yaml) | Configure watched volume settings for the chart under this key. |
 | persistence.public | object | See [values.yaml](./values.yaml) | Configure public volume settings for the chart under this key. |
 | persistence.storage | object | See [values.yaml](./values.yaml) | Configure main storage volume settings for the chart under this key. |
