@@ -152,6 +152,9 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "dawarich.env" -}}
+{{/* SELF_HOSTED is required in Dawarich >=0.25.4 */}}
+- name: SELF_HOSTED
+  value: "true"
 - name: APPLICATION_HOSTS
   value: {{ .Values.dawarich.host }}
 {{- with .Values.postgresql }}
