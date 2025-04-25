@@ -93,6 +93,7 @@ sidekiq:
 
 persistence:
   public:
+    # This volume mounts to /var/app/public
     enabled: true
     existingClaim: ""
     annotations: []
@@ -100,12 +101,21 @@ persistence:
     storageClass: ""
     size: 10Gi
   watched:
+    # This volume mounts to /var/app/tmp/imports/watched
     enabled: true
     existingClaim: ""
     annotations: []
     accessMode: "ReadWriteOnce"
     storageClass: ""
     size: 10Gi
+  storage:
+    # This volume mounts to /var/app/storage
+    enabled: true
+    existingClaim: ""
+    annotations: []
+    accessMode: "ReadWriteOnce"
+    storageClass: ""
+    size: 5Gi
 
 postgresql:
   auth:
