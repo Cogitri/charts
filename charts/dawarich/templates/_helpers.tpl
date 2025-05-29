@@ -245,7 +245,7 @@ httpGet:
   port: http
   httpHeaders:
     - name: Host
-      value: {{ .Values.dawarich.host }}
+      value: {{ (splitList "," .Values.dawarich.host) | first }}
 {{- end }}
 
 {{- define "dawarich.readinessProbe" }}
@@ -254,7 +254,7 @@ httpGet:
   port: http
   httpHeaders:
     - name: Host
-      value: {{ .Values.dawarich.host }}
+      value: {{ (splitList "," .Values.dawarich.host) | first }}
 {{- end }}
 
 {{- define "dawarich.startupProbe" }}
@@ -263,7 +263,7 @@ httpGet:
   port: http
   httpHeaders:
     - name: Host
-      value: {{ .Values.dawarich.host }}
+      value: {{ (splitList "," .Values.dawarich.host) | first }}
 initialDelaySeconds: 30
 periodSeconds: 10
 failureThreshold: 10
