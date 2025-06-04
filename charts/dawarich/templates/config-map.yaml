@@ -6,4 +6,7 @@ metadata:
     {{- include "dawarich.labels" . | nindent 4 }}
 data:
   RAILS_ENV: "production"
+  QUEUE_DATABASE_PATH: /var/app/solid/dawarich_queue.sqlite3
+  CACHE_DATABASE_PATH: /var/app/solid/dawarich_cache.sqlite3
+  CABLE_DATABASE_PATH: /var/app/solid/dawarich_cable.sqlite3
   {{- include "dawarich.environmentSetup" (dict "environment" .Values.env)}}

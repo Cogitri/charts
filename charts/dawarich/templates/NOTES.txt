@@ -20,6 +20,6 @@
   echo "Visit http://127.0.0.1:8080 to use your application"
   kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
 {{- end }}
-2. Wait for the dawarich Pod to be ready (it takes up to a minute until postgresql & redis are ready for dawarich to function)
+2. Wait for the dawarich Pod to be ready (it takes up to a minute until postgresql is ready for dawarich to function)
 3. Login with the default username (demo@dawarich.app) and password (password)
 4. Click on the top-right button ("demo@dawarich.app") -> "Account" to edit the email and password of the default account.
