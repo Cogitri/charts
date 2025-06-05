@@ -54,7 +54,11 @@ spec:
                   {{- else }}
                     {{ $.Release.Name }}-postgresql
                   {{- end }}
-                  key: postgres-password
+                  key: {{- if .Values.postgresql.auth.secretKeys.adminPasswordKey }}
+                    {{ .Values.postgresql.auth.secretKeys.adminPasswordKey }}
+                  {{- else }}
+                    postgres-password
+                  {{- end }}
             - name: DB_USER
               value: {{ .Values.postgresql.auth.username }}
         {{- end }}  
