@@ -161,7 +161,7 @@ Create the name of the service account to use
 - name: SELF_HOSTED
   value: "true"
 - name: APPLICATION_HOSTS
-  value: {{ .Values.dawarich.host }}
+  value: {{ .Values.dawarich.hosts | toYaml | nindent 2 }}
 {{- with .Values.postgresql }}
 - name: DATABASE_HOST
   value: "{{ tpl $.Values.postgresql.host $ }}"
@@ -223,7 +223,7 @@ httpGet:
   port: http
   httpHeaders:
     - name: Host
-      value: {{ .Values.dawarich.host | first }}
+      value: {{ .Values.dawarich.hosts | first }}
 {{- end }}
 
 {{- define "dawarich.readinessProbe" }}
@@ -232,7 +232,7 @@ httpGet:
   port: http
   httpHeaders:
     - name: Host
-      value: {{ .Values.dawarich.host | first }}
+      value: {{ .Values.dawarich.hosts | first }}
 {{- end }}
 
 {{- define "dawarich.startupProbe" }}
@@ -241,7 +241,7 @@ httpGet:
   port: http
   httpHeaders:
     - name: Host
-      value: {{ .Values.dawarich.host | first }}
+      value: {{ .Values.dawarich.hosts | first }}
 initialDelaySeconds: 30
 periodSeconds: 10
 failureThreshold: 10
