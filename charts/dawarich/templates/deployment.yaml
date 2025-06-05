@@ -40,7 +40,7 @@ spec:
             - -c
             - |
               set -e
-              psql -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+              psql -d {{ .Values.postgresql.auth.database }} -c "CREATE EXTENSION IF NOT EXISTS postgis;"
           env:
             - name: PGHOST
               value: {{ include "dawarich.fullname" . }}-postgresql
