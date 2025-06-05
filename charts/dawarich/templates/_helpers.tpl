@@ -161,7 +161,7 @@ Create the name of the service account to use
 - name: SELF_HOSTED
   value: "true"
 - name: APPLICATION_HOSTS
-  value: {{ .Values.dawarich.hosts | toYaml | nindent 2 }}
+  value: {{ join "," .Values.dawarich.hosts }}
 {{- with .Values.postgresql }}
 - name: DATABASE_HOST
   value: "{{ tpl $.Values.postgresql.host $ }}"
