@@ -169,6 +169,8 @@ Create the name of the service account to use
   value: "{{ .port }}"
 - name: DATABASE_NAME
   value: "{{ .auth.database }}"
+- name: QUEUE_DATABASE_NAME
+  value: "{{ .auth.database }}_queue"
 - name: DATABASE_USERNAME
   valueFrom:
     secretKeyRef:

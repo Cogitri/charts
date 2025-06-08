@@ -2,9 +2,9 @@ apiVersion: v2
 name: dawarich
 description: "Self-hosted alternative to Google Location History"
 type: application
-version: 0.8.2
+version: 0.8.3
 # renovate datasource=docker depName=docker.io/freikin/dawarich
-appVersion: "0.27.3"
+appVersion: "0.27.4"
 dependencies:
   - name: postgresql
     version: 16.7.10
