@@ -33,7 +33,7 @@ spec:
       initContainers:
         {{ include "dawarich.initContainers" . | nindent 8 }}
         {{- if .Values.postgresql.enabled }}
-        - name: postgis-init
+        - name: postgres-init
           image: bitnami/postgresql:latest
           command:
             - /bin/sh
@@ -41,6 +41,42 @@ spec:
             - |
               set -e
               psql -d {{ .Values.postgresql.auth.database }} -c "CREATE EXTENSION IF NOT EXISTS postgis;"
+
+              # Create queue database and grant privileges
+              QUEUE_DB="{{ .Values.postgresql.auth.database }}_queue"
+              QUEUE_USER="{{ .Values.postgresql.auth.username }}"
+              QUEUE_DB_EXISTS=$(psql -tAc "SELECT 1 FROM pg_database WHERE datname='${QUEUE_DB}'")
+              if [ "${QUEUE_DB_EXISTS}" != "1" ]; then
+                psql -c "CREATE DATABASE ${QUEUE_DB};"
+              fi
+
+              psql -d postgres -v ON_ERROR_STOP=1 <<EOF
+              GRANT CONNECT ON DATABASE "$QUEUE_DB" TO "$QUEUE_USER";
+              GRANT CREATE ON DATABASE "$QUEUE_DB" TO "$QUEUE_USER";
+              EOF
+
+              psql -d "$QUEUE_DB" -v ON_ERROR_STOP=1 <<EOF
+              DO \$\$
+              DECLARE
+              sch TEXT;
+              BEGIN
+              FOR sch IN
+              SELECT nspname FROM pg_namespace
+              WHERE (nspname != 'information_schema' AND nspname NOT LIKE 'pg_%')
+              LOOP
+              EXECUTE format('GRANT USAGE, CREATE ON SCHEMA %I TO "$QUEUE_USER";', sch);
+              EXECUTE format('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA %I TO "$QUEUE_USER";', sch);
+              EXECUTE format('GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA %I TO "$QUEUE_USER";', sch);
+              EXECUTE format('GRANT ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA %I TO "$QUEUE_USER";', sch);
+
+              -- Set default privileges for future objects
+              EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %I GRANT ALL PRIVILEGES ON TABLES TO "$QUEUE_USER";', sch);
+              EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %I GRANT ALL PRIVILEGES ON SEQUENCES TO "$QUEUE_USER";', sch);
+              EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %I GRANT ALL PRIVILEGES ON FUNCTIONS TO "$QUEUE_USER";', sch);
+              END LOOP;
+              END;
+              \$\$;
+              EOF
           env:
             - name: PGHOST
               value: {{ include "dawarich.fullname" . }}-postgresql
@@ -61,7 +97,7 @@ spec:
                   {{- end }}
             - name: DB_USER
               value: {{ .Values.postgresql.auth.username }}
-        {{- end }}  
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           command: ['web-entrypoint.sh']
