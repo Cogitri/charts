@@ -83,6 +83,10 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{- define "dawarich.redisSecretName" -}}
+{{- default (printf "%s-redis-secret" (include "dawarich.fullname" .)) .Values.dawarich.redis.existingSecret }}
+{{- end }}
+
 {{- define "dawarich.postgresSecretName" -}}
 {{- default (printf "%s-postgres-secret" (include "dawarich.fullname" .)) .Values.dawarich.postgres.existingSecret }}
 {{- end }}
@@ -106,11 +110,6 @@ Create the name of the service account to use
   persistentVolumeClaim:
     claimName: {{ default (printf "%s-storage" (include "dawarich.fullname" .)) .Values.persistence.storage.existingClaim }}
 {{- end }}
-{{- if .Values.persistence.solid.enabled }}
-- name: solid
-  persistentVolumeClaim:
-    claimName: {{ default (printf "%s-solid" (include "dawarich.fullname" .)) .Values.persistence.solid.existingClaim }}
-{{- end }}
 {{- if .Values.dawarich.extraVolumes }}
 {{ toYaml .Values.dawarich.extraVolumes | indent 2 }}
 {{- end }}
@@ -126,10 +125,6 @@ Create the name of the service account to use
 {{- if .Values.persistence.storage.enabled }}
 - name: storage
   mountPath: /var/app/storage
-{{- end }}
-{{- if .Values.persistence.solid.enabled }}
-- name: storage
-  mountPath: /var/app/solid
 {{- end }}
 {{- if .Values.dawarich.extraVolumeMounts }}
 {{ toYaml .Values.dawarich.extraVolumeMounts | indent 2 }}
@@ -159,6 +154,9 @@ Create the name of the service account to use
 {{- define "dawarich.env" -}}
 {{/* SELF_HOSTED is required in Dawarich >=0.25.4 */}}
 - name: SELF_HOSTED
+  value: "true"
+{{/* STORE_GEODATA was introduced in Dawarich 0.28.0 */}}
+- name: STORE_GEODATA
   value: "true"
 - name: APPLICATION_HOSTS
   value: {{ join "," .Values.dawarich.hosts }}
@@ -193,6 +191,25 @@ Create the name of the service account to use
       key: password
       {{- end }}
 {{- end }}
+{{- with .Values.redis }}
+{{- if .auth.enabled }}
+- name: A_REDIS_PASSWORD
+  valueFrom:
+    secretKeyRef:
+      {{- if .auth.existingSecret }}
+      name: {{ .auth.existingSecret }}
+      key: redis-password
+      {{- else if not .enabled }}
+      name: {{ include "dawarich.fullname" $ }}
+      key: redisPassword
+      {{- else }}
+      name: {{ $.Release.Name }}-redis
+      key: redis-password
+      {{- end }}
+{{- end }}
+- name: REDIS_URL
+  value: redis://{{ if .auth.enabled }}:$(A_REDIS_PASSWORD)@{{ end }}{{ tpl $.Values.redis.host $ }}:{{ .port }}
+{{- end }}
 - name: SECRET_KEY_BASE
   valueFrom:
     secretKeyRef:
@@ -214,6 +231,14 @@ Create the name of the service account to use
     - name: DATABASE_PORT
       value: "{{ .Values.postgresql.port }}"
   command: ['sh', '-c', 'until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do echo waiting for postgres; sleep 2; done;']
+- name: wait-for-redis
+  image: busybox
+  env:
+    - name: REDIS_HOST
+      value: "{{ tpl .Values.redis.host . }}"
+    - name: REDIS_PORT
+      value: "{{ .Values.redis.port }}"
+  command: ['sh', '-c', 'until nc -z "$REDIS_HOST" "$REDIS_PORT"; do echo waiting for redis; sleep 2; done;']
 {{- end }}
 
 

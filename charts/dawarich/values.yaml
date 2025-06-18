@@ -48,6 +48,50 @@ dawarich:
 
   affinity: {}
 
+sidekiq:
+  replicaCount: 1
+
+  # This is to setup the liveness and readiness probes more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  livenessProbe:
+    exec:
+      command:
+        - "sh"
+        - "-c"
+        - "pgrep -f sidekiq"
+  readinessProbe:
+    exec:
+      command:
+        - "sh"
+        - "-c"
+        - "pgrep -f sidekiq"
+  startupProbe:
+    exec:
+      command:
+        - "sh"
+        - "-c"
+        - "pgrep -f sidekiq"
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    failureThreshold: 10
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 256Mi
+    # requests:
+    #   cpu: 500m
+    #   memory: 2Gi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
 persistence:
   public:
     # This volume mounts to /var/app/public
@@ -67,14 +111,6 @@ persistence:
     size: 10Gi
   storage:
     # This volume mounts to /var/app/storage
-    enabled: true
-    existingClaim: ""
-    annotations: []
-    accessMode: "ReadWriteOnce"
-    storageClass: ""
-    size: 5Gi
-  solid:
-    # This volume mounts to /var/app/solid
     enabled: true
     existingClaim: ""
     annotations: []
@@ -109,6 +145,22 @@ postgresql:
   shmVolume:
     # As per upstream
     sizeLimit: 1Gi
+
+redis:
+  enabled: true
+  host: '{{ $.Release.Name }}-redis-master'
+  port: 6379
+  auth:
+    enabled: true
+    password: changeme
+    # Use an existing secret for redis auth. Do this if you're using Argo to manage your instance or otherwise using helm template under the hood
+    #     The secret name can vary, but the password key must be redis-password.
+    existingSecret: null
+  master:
+    persistence:
+      enabled: false
+  replica:
+    replicaCount: 0
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []

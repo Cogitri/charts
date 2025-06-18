@@ -14,6 +14,7 @@ Self-hosted alternative to Google Location History
 | Repository | Name |
 |------------|------|
 | <https://charts.bitnami.com/bitnami> | postgresql |
+| <https://charts.bitnami.com/bitnami> | redis |
 
 ## Installing the Chart
 
@@ -41,6 +42,7 @@ Some of the most important values are documented below. Checkout the [values.yam
 |-----|------|---------|-------------|
 | env | object | See [values.yaml](./values.yaml) | Environment variables used for configuration of Dawarich |
 | dawarich | object | See [values.yaml](./values.yaml) | Pod configuration for the Dawarich deployment |
+| sidekiq | object | See [values.yaml](./values.yaml) | Pod configuration for the Sidekiq deployment |
 | image.pullPolicy | string | `"IfNotPresent"` | Image pull policy |
 | image.repository | string | `"docker.io/freikin/dawarich"` | Image repository |
 | ingress | object | See [values.yaml](./values.yaml) | Enable and configure ingress settings for the chart under this key. |
@@ -48,6 +50,9 @@ Some of the most important values are documented below. Checkout the [values.yam
 | persistence.public | object | See [values.yaml](./values.yaml) | Configure public volume settings for the chart under this key. |
 | persistence.storage | object | See [values.yaml](./values.yaml) | Configure main storage volume settings for the chart under this key. |
 | postgresql | object | See [values.yaml](./values.yaml) | Configure postgresql database subchart under this key. Dawarich will automatically be configured to use the credentials supplied to postgresql. [[ref]](https://github.com/bitnami/charts/tree/main/bitnami/postgresql) |
+| redis | object | See [values.yaml](./values.yaml) | Configure redis subchart under this key. Dawarich will automatically be configured to use the credentials supplied to postgresql. [[ref]](https://github.com/bitnami/charts/tree/main/bitnami/redis) |
+
+To use an external Postgres or Redis instance, set `.enabled: false` with the external host and port. E.g. for external Postgres;
 
 ```yaml
 postgresql:
