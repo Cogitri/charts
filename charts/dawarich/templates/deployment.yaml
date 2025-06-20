@@ -102,3 +102,73 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "dawarich.fullname" . }}-sidekiq
+  labels:
+    {{- include "dawarich.labelsSidekiq" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.sidekiq.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "dawarich.selectorLabelsSidekiq" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.podAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+        config-hash: {{ include (print $.Template.BasePath "/config-map.yaml") . | sha256sum }}
+      labels:
+        {{- include "dawarich.labelsSidekiq" . | nindent 8 }}
+        {{- with .Values.podLabels }}
+        {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "dawarich.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{ include "dawarich.initContainers" . | nindent 10 }}
+      containers:
+        - name: {{ .Chart.Name }}-sidekiq
+          command: ['sidekiq-entrypoint.sh']
+          envFrom:
+            {{- include "dawarich.envFrom" . | nindent 12 }}
+          env:
+            {{- include "dawarich.env" . | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          livenessProbe:
+            {{- toYaml .Values.sidekiq.livenessProbe | nindent 12 }}
+          readinessProbe:
+            {{- toYaml .Values.sidekiq.readinessProbe | nindent 12 }}
+          startupProbe:
+            {{- toYaml .Values.sidekiq.startupProbe | nindent 12 }}
+          resources:
+            {{- toYaml .Values.sidekiq.resources | nindent 12 }}
+          volumeMounts:
+            {{- include "dawarich.sidekiqVolumeMounts" . | trim | nindent 12 }}
+      volumes:
+        {{- include "dawarich.volumes" . | trim | nindent 8 }}
+      {{- with .Values.sidekiq.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.sidekiq.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.sidekiq.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
