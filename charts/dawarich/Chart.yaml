@@ -4,7 +4,7 @@ description: "Self-hosted alternative to Google Location History"
 type: application
 version: 0.8.3
 # renovate datasource=docker depName=docker.io/freikin/dawarich
-appVersion: "0.30.0"
+appVersion: "0.30.2"
 dependencies:
   - name: postgresql
     version: 16.7.15
