@@ -223,23 +223,23 @@ Create the name of the service account to use
 - name: PHOTON_API_KEY
   valueFrom:
     secretKeyRef:
-    {{- if .Values.photonApiKey.existingSecret }}
-    name: {{ .Values.photonApiKey.existingSecret }}
-    key: {{ .Values.photonApiKey.existingSecretKeyName }}
-    {{- else }}
-    name: {{ include "dawarich.fullname" $ }}
-    key: photonApiKey
-    {{- end }}
+      {{- if .Values.photonApiKey.existingSecret }}
+      name: {{ .Values.photonApiKey.existingSecret }}
+      key: {{ .Values.photonApiKey.existingSecretKeyName }}
+      {{- else }}
+      name: {{ include "dawarich.fullname" $ }}
+      key: photonApiKey
+      {{- end }}
 - name: GEOAPIFY_API_KEY
   valueFrom:
     secretKeyRef:
-    {{- if .Values.geoapifyApiKey.existingSecret }}
-    name: {{ .Values.geoapifyApiKey.existingSecret }}
-    key: {{ .Values.geoapifyApiKey.existingSecretKeyName }}
-    {{- else }}
-    name: {{ include "dawarich.fullname" $ }}
-    key: geoapifyApiKey
-    {{- end }}
+      {{- if .Values.geoapifyApiKey.existingSecret }}
+      name: {{ .Values.geoapifyApiKey.existingSecret }}
+      key: {{ .Values.geoapifyApiKey.existingSecretKeyName }}
+      {{- else }}
+      name: {{ include "dawarich.fullname" $ }}
+      key: geoapifyApiKey
+      {{- end }}
 
 {{- end }}
 
