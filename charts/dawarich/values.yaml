@@ -24,6 +24,20 @@ env:
   prometheusExporterHost: "127.0.0.1"
   prometheusExporterPort: "9394"
   railsLogToStdout: "true"
+  photonApiHost: ""
+  photonApiUseHttps: ""
+
+# See https://dawarich.app/docs/tutorials/reverse-geocoding
+# Photon and Geoapify are mutually exclusive
+photonApiKey:
+  existingSecret: null
+  existingSecretKeyName: "key"
+  value: ""
+
+geoapifyApiKey:
+  existingSecret: null
+  existingSecretKeyName: "key"
+  value: ""
 
 dawarich:
   replicaCount: 1
