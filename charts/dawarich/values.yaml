@@ -136,6 +136,15 @@ postgresql:
   enabled: true
   host: '{{ $.Release.Name }}-postgresql'
   port: 5432
+
+  # bitnami will stop supplying images at the official bitnami/postgresql repository soon. Use legacy until we
+  # settle for an alternative chart/image
+  global:
+    security:
+      allowInsecureImages: true
+  image:
+    repository: bitnamilegacy/postgresql
+
   auth:
     # Either set the postgresql credentials in the helm chart, or provide your own secret.
     database: dawarich
@@ -164,6 +173,15 @@ redis:
   enabled: true
   host: '{{ $.Release.Name }}-redis-master'
   port: 6379
+
+  # bitnami will stop supplying images at the official bitnami/postgresql repository soon. Use legacy until we
+  # settle for an alternative chart/image
+  global:
+    security:
+      allowInsecureImages: true
+  image:
+    repository: bitnamilegacy/redis
+
   auth:
     enabled: true
     password: changeme
