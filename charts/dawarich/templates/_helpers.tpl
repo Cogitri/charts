@@ -221,25 +221,33 @@ Create the name of the service account to use
       key: keyBase
       {{- end }}
 - name: PHOTON_API_KEY
+  {{- if .Values.photonApiKey.existingSecret }}
   valueFrom:
     secretKeyRef:
-      {{- if .Values.photonApiKey.existingSecret }}
       name: {{ .Values.photonApiKey.existingSecret }}
       key: {{ .Values.photonApiKey.existingSecretKeyName }}
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: photonApiKey
-      {{- end }}
-- name: GEOAPIFY_API_KEY
+  {{- else if .Values.photonApiKey.value }}
   valueFrom:
     secretKeyRef:
-      {{- if .Values.geoapifyApiKey.existingSecret }}
+      name: {{ include "dawarich.fullname" $ }}
+      key: photonApiKey
+  {{- else }}
+  value: ""
+  {{- end }}
+- name: GEOAPIFY_API_KEY
+  {{- if .Values.geoapifyApiKey.existingSecret }}
+  valueFrom:
+    secretKeyRef:
       name: {{ .Values.geoapifyApiKey.existingSecret }}
       key: {{ .Values.geoapifyApiKey.existingSecretKeyName }}
-      {{- else }}
+  {{- else if .Values.geoapifyApiKey.value }}
+  valueFrom:
+    secretKeyRef:
       name: {{ include "dawarich.fullname" $ }}
       key: geoapifyApiKey
-      {{- end }}
+  {{- else }}
+  value: ""
+  {{- end }}
 
 {{- end }}
 
