@@ -150,6 +150,7 @@ redis:
 
   auth: true
   existingSecret: null
+  authKey: redis-password
   redisPassword: changeme
   haproxy:
     enabled: false
