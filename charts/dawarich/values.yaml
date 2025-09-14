@@ -133,66 +133,30 @@ persistence:
     size: 5Gi
 
 postgresql:
-  enabled: true
   host: '{{ $.Release.Name }}-postgresql'
   port: 5432
 
-  # bitnami will stop supplying images at the official bitnami/postgresql repository soon. Use legacy until we
-  # settle for an alternative chart/image
-  global:
-    security:
-      allowInsecureImages: true
-  image:
-    repository: bitnamilegacy/postgresql
-
   auth:
-    # Either set the postgresql credentials in the helm chart, or provide your own secret.
     database: dawarich
     password: changeme
     username: dawarich
     postgresPassword: changeme
     existingSecret: null
-  primary:
-    persistence:
-      enabled: false
-      # storageClass: ""
-      # size: 8Gi
-    # https://github.com/Freika/dawarich/pull/569
-    extendedConfiguration: |-
-      shared_buffers = 512MB
-      work_mem = 128MB
-      maintenance_work_mem = 128MB
-      max_wal_size = 1GB
-      min_wal_size = 80MB
-      max_parallel_workers_per_gather = 4
-  shmVolume:
-    # As per upstream
-    sizeLimit: 1Gi
 
 redis:
   enabled: true
-  host: '{{ $.Release.Name }}-redis-master'
+  host: '{{ $.Release.Name }}-redis'
   port: 6379
 
-  # bitnami will stop supplying images at the official bitnami/postgresql repository soon. Use legacy until we
-  # settle for an alternative chart/image
-  global:
-    security:
-      allowInsecureImages: true
-  image:
-    repository: bitnamilegacy/redis
+  auth: true
+  existingSecret: null
+  redisPassword: changeme
+  haproxy:
+    enabled: false
+  exporter:
+    enabled: false
+  hardAntiAffinity: false
 
-  auth:
-    enabled: true
-    password: changeme
-    # Use an existing secret for redis auth. Do this if you're using Argo to manage your instance or otherwise using helm template under the hood
-    #     The secret name can vary, but the password key must be redis-password.
-    existingSecret: null
-  master:
-    persistence:
-      enabled: false
-  replica:
-    replicaCount: 0
 
 # This is for the secretes for pulling an image from a private repository more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
 imagePullSecrets: []

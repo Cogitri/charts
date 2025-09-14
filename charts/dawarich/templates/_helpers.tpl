@@ -183,32 +183,26 @@ Create the name of the service account to use
       {{- if .auth.existingSecret }}
       name: {{ .auth.existingSecret }}
       key: password
-      {{- else if not .enabled }}
+      {{- else }}
       name: {{ include "dawarich.fullname" $ }}
       key: postgresPassword
-      {{- else }}
-      name: {{ $.Release.Name }}-postgresql
-      key: password
       {{- end }}
 {{- end }}
 {{- with .Values.redis }}
-{{- if .auth.enabled }}
+{{- if .auth }}
 - name: A_REDIS_PASSWORD
   valueFrom:
     secretKeyRef:
-      {{- if .auth.existingSecret }}
-      name: {{ .auth.existingSecret }}
+      {{- if .existingSecret }}
+      name: {{ .existingSecret }}
       key: redis-password
-      {{- else if not .enabled }}
+      {{- else }}
       name: {{ include "dawarich.fullname" $ }}
       key: redisPassword
-      {{- else }}
-      name: {{ $.Release.Name }}-redis
-      key: redis-password
       {{- end }}
 {{- end }}
 - name: REDIS_URL
-  value: redis://{{ if .auth.enabled }}:$(A_REDIS_PASSWORD)@{{ end }}{{ tpl $.Values.redis.host $ }}:{{ .port }}
+  value: redis://{{ if .auth }}:$(A_REDIS_PASSWORD)@{{ end }}{{ tpl $.Values.redis.host $ }}:{{ .port }}
 {{- end }}
 - name: SECRET_KEY_BASE
   valueFrom:
@@ -260,14 +254,6 @@ Create the name of the service account to use
     - name: DATABASE_PORT
       value: "{{ .Values.postgresql.port }}"
   command: ['sh', '-c', 'until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do echo waiting for postgres; sleep 2; done;']
-- name: wait-for-redis
-  image: busybox
-  env:
-    - name: REDIS_HOST
-      value: "{{ tpl .Values.redis.host . }}"
-    - name: REDIS_PORT
-      value: "{{ .Values.redis.port }}"
-  command: ['sh', '-c', 'until nc -z "$REDIS_HOST" "$REDIS_PORT"; do echo waiting for redis; sleep 2; done;']
 {{- end }}
 
 
