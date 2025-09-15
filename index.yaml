@@ -3,6 +3,24 @@ entries:
   dawarich:
   - apiVersion: v2
     appVersion: 0.32.0
+    created: "2025-09-15T19:13:08.206809402Z"
+    dependencies:
+    - alias: redis
+      condition: redis.enabled
+      name: redis-ha
+      repository: https://dandydeveloper.github.io/charts
+      version: 4.34.10
+    description: Self-hosted alternative to Google Location History
+    digest: 09ba7cb1fd20cfb106cf6b0229daa5052be3a13f780542c38b93b1951d6b006d
+    name: dawarich
+    sources:
+    - https://dawarich.app
+    type: application
+    urls:
+    - https://github.com/Cogitri/charts/releases/download/dawarich-1.0.2/dawarich-1.0.2.tgz
+    version: 1.0.2
+  - apiVersion: v2
+    appVersion: 0.32.0
     created: "2025-09-14T16:56:07.537160528Z"
     dependencies:
     - alias: redis
@@ -921,4 +939,4 @@ entries:
     urls:
     - https://Cogitri.github.io/charts/dawarich-0.1.0.tgz
     version: 0.1.0
-generated: "2025-09-14T16:56:07.53830017Z"
+generated: "2025-09-15T19:13:08.207180937Z"
