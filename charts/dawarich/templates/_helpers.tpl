@@ -202,7 +202,7 @@ Create the name of the service account to use
       {{- end }}
 {{- end }}
 - name: REDIS_URL
-  value: redis://{{ if .auth }}:$(A_REDIS_PASSWORD)@{{ end }}{{ tpl $.Values.redis.host $ }}:{{ .port }}
+  value: redis://{{ if .auth }}:$(A_REDIS_PASSWORD)@{{ end }}{{ tpl $.Values.redis.host $ }}:{{ .port }}/{{ .db | default 0 }}
 {{- end }}
 - name: SECRET_KEY_BASE
   valueFrom:
