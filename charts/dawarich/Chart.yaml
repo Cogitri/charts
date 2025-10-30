@@ -8,7 +8,7 @@ appVersion: "0.33.1"
 dependencies:
   - name: redis-ha
     repository: https://dandydeveloper.github.io/charts
-    version: 4.35.0
+    version: 4.35.2
     condition: redis.enabled
     alias: redis
 sources:
