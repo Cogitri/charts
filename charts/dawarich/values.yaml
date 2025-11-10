@@ -23,6 +23,7 @@ env:
   prometheusExporterEnabled: "false"
   prometheusExporterHost: "127.0.0.1"
   prometheusExporterPort: "9394"
+  railsEnv: "production"
   railsLogToStdout: "true"
   photonApiHost: ""
   photonApiUseHttps: ""
