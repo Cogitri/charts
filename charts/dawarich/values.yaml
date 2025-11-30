@@ -29,7 +29,7 @@ env:
   photonApiUseHttps: ""
 
 # Optional: Specify an existing secret to load all environment variables from
-existingSecret: null
+existingEnvSecret: null
 
 # See https://dawarich.app/docs/tutorials/reverse-geocoding
 # Photon and Geoapify are mutually exclusive

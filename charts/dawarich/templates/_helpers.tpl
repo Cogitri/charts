@@ -149,9 +149,9 @@ Create the name of the service account to use
 {{- define "dawarich.envFrom" -}}
 - configMapRef:
     name: {{ include "dawarich.fullname" . }}-config
-{{- if .Values.existingSecret }}
+{{- if .Values.existingEnvSecret }}
 - secretRef:
-    name: {{ .Values.existingSecret }}
+    name: {{ .Values.existingEnvSecret }}
 {{- end }}
 {{- end }}
 
