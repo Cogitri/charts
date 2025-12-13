@@ -43,6 +43,26 @@ geoapifyApiKey:
   existingSecretKeyName: "key"
   value: ""
 
+# OIDC (OpenID Connect) authentication configuration
+oidc:
+  enabled: false
+  providerName: "OpenID Connect"
+
+  clientId:
+    existingSecret: null
+    existingSecretKeyName: "clientId"
+    value: ""
+  clientSecret:
+    existingSecret: null
+    existingSecretKeyName: "clientSecret"
+    value: ""
+
+  issuer: ""
+  redirectUri: ""
+
+  autoRegister: false
+  allowEmailPasswordRegistration: true
+
 dawarich:
   replicaCount: 1
   hosts:
