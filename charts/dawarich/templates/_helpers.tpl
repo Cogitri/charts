@@ -246,6 +246,38 @@ Create the name of the service account to use
   {{- else }}
   value: ""
   {{- end }}
+{{- if .Values.oidc.enabled }}
+- name: OIDC_CLIENT_ID
+  valueFrom:
+    secretKeyRef:
+      {{- if .Values.oidc.clientId.existingSecret }}
+      name: {{ .Values.oidc.clientId.existingSecret }}
+      key: {{ .Values.oidc.clientId.existingSecretKeyName }}
+      {{- else }}
+      name: {{ include "dawarich.fullname" $ }}
+      key: oidcClientId
+      {{- end }}
+- name: OIDC_CLIENT_SECRET
+  valueFrom:
+    secretKeyRef:
+      {{- if .Values.oidc.clientSecret.existingSecret }}
+      name: {{ .Values.oidc.clientSecret.existingSecret }}
+      key: {{ .Values.oidc.clientSecret.existingSecretKeyName }}
+      {{- else }}
+      name: {{ include "dawarich.fullname" $ }}
+      key: oidcClientSecret
+      {{- end }}
+- name: OIDC_ISSUER
+  value: {{ .Values.oidc.issuer | quote }}
+- name: OIDC_REDIRECT_URI
+  value: {{ .Values.oidc.redirectUri | quote }}
+- name: OIDC_AUTO_REGISTER
+  value: {{ .Values.oidc.autoRegister | quote }}
+- name: OIDC_PROVIDER_NAME
+  value: {{ .Values.oidc.providerName | quote }}
+- name: ALLOW_EMAIL_PASSWORD_REGISTRATION
+  value: {{ .Values.oidc.allowEmailPasswordRegistration | quote }}
+{{- end }}
 
 {{- end }}
 
