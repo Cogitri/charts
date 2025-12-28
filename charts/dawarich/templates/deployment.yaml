@@ -17,6 +17,7 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
         config-hash: {{ include (print $.Template.BasePath "/config-map.yaml") . | sha256sum }}
+        secret-hash: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       labels:
         {{- include "dawarich.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -122,6 +123,7 @@ spec:
           {{- toYaml . | nindent 8 }}
         {{- end }}
         config-hash: {{ include (print $.Template.BasePath "/config-map.yaml") . | sha256sum }}
+        secret-hash: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
       labels:
         {{- include "dawarich.labelsSidekiq" . | nindent 8 }}
         {{- with .Values.podLabels }}
