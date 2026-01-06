@@ -164,7 +164,6 @@ postgresql:
     database: dawarich
     password: changeme
     username: dawarich
-    postgresPassword: changeme
     existingSecret: null
 
 redis:
