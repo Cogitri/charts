@@ -87,10 +87,6 @@ Create the name of the service account to use
 {{- default (printf "%s-redis-secret" (include "dawarich.fullname" .)) .Values.dawarich.redis.existingSecret }}
 {{- end }}
 
-{{- define "dawarich.postgresSecretName" -}}
-{{- default (printf "%s-postgres-secret" (include "dawarich.fullname" .)) .Values.dawarich.postgres.existingSecret }}
-{{- end }}
-
 {{- define "dawarich.volumes" -}}
 {{- if .Values.persistence.public.enabled }}
 - name: public
@@ -164,34 +160,11 @@ Create the name of the service account to use
   value: "true"
 - name: APPLICATION_HOSTS
   value: {{ join "," .Values.dawarich.hosts }}
-{{- with .Values.postgresql }}
-- name: DATABASE_HOST
-  value: "{{ tpl $.Values.postgresql.host $ }}"
-- name: DATABASE_PORT
-  value: "{{ .port }}"
-- name: DATABASE_NAME
-  value: "{{ .auth.database }}"
-- name: DATABASE_USERNAME
-  valueFrom:
-    secretKeyRef:
-      {{- if .auth.existingSecret }}
-      name: {{ .auth.existingSecret }}
-      key: username
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: postgresUsername
-      {{- end }}
-- name: DATABASE_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      {{- if .auth.existingSecret }}
-      name: {{ .auth.existingSecret }}
-      key: password
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: postgresPassword
-      {{- end }}
-{{- end }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_HOST" "Key" "postgresHost" "Value" .Values.postgresql.host "Root" .) }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PORT" "Key" "postgresPort" "Value" .Values.postgresql.port "Root" .) }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_NAME" "Key" "postgresDatabase" "Value" .Values.postgresql.auth.database "Root" .) }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_USERNAME" "Key" "postgresUsername" "Value" .Values.postgresql.auth.username "ExistingSecret" .Values.postgresql.auth.existingSecret "ExistingKey" "username" "Root" .) }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PASSWORD" "Key" "postgresPassword" "Value" .Values.postgresql.auth.password "ExistingSecret" .Values.postgresql.auth.existingSecret "ExistingKey" "password" "Root" .) }}
 {{- with .Values.redis }}
 {{- if .auth }}
 - name: A_REDIS_PASSWORD
@@ -285,10 +258,8 @@ Create the name of the service account to use
 - name: wait-for-postgres
   image: busybox
   env:
-    - name: DATABASE_HOST
-      value: "{{ tpl .Values.postgresql.host . }}"
-    - name: DATABASE_PORT
-      value: "{{ .Values.postgresql.port }}"
+    {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_HOST" "Key" "postgresHost" "Value" .Values.postgresql.host "Root" .) | nindent 4 }}
+    {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PORT" "Key" "postgresPort" "Value" .Values.postgresql.port "Root" .) | nindent 4 }}
   command: ['sh', '-c', 'until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do echo waiting for postgres; sleep 2; done;']
 {{- end }}
 
@@ -321,4 +292,28 @@ httpGet:
 initialDelaySeconds: 30
 periodSeconds: 10
 failureThreshold: 10
+{{- end }}
+
+{{- define "dawarich.secretValue" }}
+{{- if and (not (kindIs "map" .Value)) (not .ExistingSecret) }}
+{{ .Key | quote }}: {{ ternary (tpl (.Value | toString) .Root) (.Value | toString) (not (not .Template)) | b64enc }}
+{{- end }}
+{{- end }}
+
+{{- define "dawarich.secretValueEnvRef" }}
+{{- if .Value }}
+- name: {{ .EnvName | quote }}
+  valueFrom:
+    secretKeyRef:
+      {{- if .ExistingSecret }}
+      name: {{ .ExistingSecret }}
+      key: {{ .ExistingKey | default .Key | quote }}
+      {{- else if kindIs "map" .Value }}
+      name: {{ .Value.name | default (include "dawarich.fullname" .Root) }}
+      key: {{ .Value.key | quote }}
+      {{- else }}
+      name: {{ include "dawarich.fullname" .Root }}
+      key: {{ .Key | quote }}
+      {{- end }}
+{{- end }}
 {{- end }}
