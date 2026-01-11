@@ -10,9 +10,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-keyBase:
-  existingSecret: null
-  value: changeme
+keyBase: changeme
 
 env:
   minMinutesSpentInCity: "60"
@@ -164,7 +162,6 @@ postgresql:
     database: dawarich
     password: changeme
     username: dawarich
-    existingSecret: null
 
 redis:
   enabled: true
