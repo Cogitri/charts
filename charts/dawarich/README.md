@@ -89,7 +89,7 @@ postgresql:
 
 List of values with `secretKeyRef` support:
 
-* `keyBase.value`
+* `keyBase`
 * `postgresql.host`
 * `postgresql.port`
 * `postgresql.auth.database`
