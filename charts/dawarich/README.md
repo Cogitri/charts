@@ -64,3 +64,34 @@ redis:
   # existingSecret: provide your own secret
   redisPassword: changeme
 ```
+
+## Secrets
+
+Certain keys can be either specified directly in the values or as a `secretKeyRef`.
+
+Example as a value:
+
+```yaml
+postgresql:
+  auth:
+    username: test
+```
+
+Example as a `secretKeyRef`:
+
+```yaml
+postgresql:
+  auth:
+    username:
+      name: test-secret
+      key: test-key
+```
+
+List of values with `secretKeyRef` support:
+
+* `keyBase.value`
+* `postgresql.host`
+* `postgresql.port`
+* `postgresql.auth.database`
+* `postgresql.auth.username`
+* `postgresql.auth.password`
