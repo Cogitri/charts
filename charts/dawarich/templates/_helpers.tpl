@@ -181,16 +181,7 @@ Create the name of the service account to use
 - name: REDIS_URL
   value: redis://{{ if .auth }}:$(A_REDIS_PASSWORD)@{{ end }}{{ tpl $.Values.redis.host $ }}:{{ .port }}
 {{- end }}
-- name: SECRET_KEY_BASE
-  valueFrom:
-    secretKeyRef:
-      {{- if .Values.keyBase.existingSecret }}
-      name: {{ .Values.keyBase.existingSecret }}
-      key: value
-      {{- else }}
-      name: {{ include "dawarich.fullname" . }}
-      key: keyBase
-      {{- end }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "SECRET_KEY_BASE" "Key" "keyBase" "Value" .Values.keyBase.value "ExistingSecret" .Values.keyBase.existingSecret "ExistingKey" "value" "Root" .) }}
 - name: PHOTON_API_KEY
   {{- if .Values.photonApiKey.existingSecret }}
   valueFrom:
