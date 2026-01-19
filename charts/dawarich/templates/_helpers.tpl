@@ -160,77 +160,26 @@ Create the name of the service account to use
   value: "true"
 - name: APPLICATION_HOSTS
   value: {{ join "," .Values.dawarich.hosts }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_HOST" "Key" "postgresHost" "Value" .Values.postgresql.host "Root" .) }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PORT" "Key" "postgresPort" "Value" .Values.postgresql.port "Root" .) }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_NAME" "Key" "postgresDatabase" "Value" .Values.postgresql.auth.database "Root" .) }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_USERNAME" "Key" "postgresUsername" "Value" .Values.postgresql.auth.username "Root" .) }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PASSWORD" "Key" "postgresPassword" "Value" .Values.postgresql.auth.password "Root" .) }}
-{{- with .Values.redis }}
-{{- if .auth }}
-- name: A_REDIS_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      {{- if .existingSecret }}
-      name: {{ .existingSecret }}
-      key: {{ .authKey | default "redis-password" }}
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: redisPassword
-      {{- end }}
-{{- end }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_HOST" "Key" "postgresHost" "Value" .Values.postgresql.host "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PORT" "Key" "postgresPort" "Value" .Values.postgresql.port "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_NAME" "Key" "postgresDatabase" "Value" .Values.postgresql.auth.database "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_USERNAME" "Key" "postgresUsername" "Value" .Values.postgresql.auth.username "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PASSWORD" "Key" "postgresPassword" "Value" .Values.postgresql.auth.password "Root" .) }}
+{{- $redisAddr := print (tpl .Values.redis.host .) ":" .Values.redis.port }}
+{{- if .Values.redis.auth }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "A_REDIS_PASSWORD" "Key" "redisPassword" "Value" .Values.redis.redisPassword "Root" .) }}
 - name: REDIS_URL
-  value: redis://{{ if .auth }}:$(A_REDIS_PASSWORD)@{{ end }}{{ tpl $.Values.redis.host $ }}:{{ .port }}
+  value: {{ print "redis://:$(A_REDIS_PASSWORD)@" $redisAddr | quote }}
+{{- else }}
+- name: REDIS_URL
+  value: {{ print "redis://" $redisAddr | quote }}
 {{- end }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "SECRET_KEY_BASE" "Key" "keyBase" "Value" .Values.keyBase "Root" .) }}
-- name: PHOTON_API_KEY
-  {{- if .Values.photonApiKey.existingSecret }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.photonApiKey.existingSecret }}
-      key: {{ .Values.photonApiKey.existingSecretKeyName }}
-  {{- else if .Values.photonApiKey.value }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "dawarich.fullname" $ }}
-      key: photonApiKey
-  {{- else }}
-  value: ""
-  {{- end }}
-- name: GEOAPIFY_API_KEY
-  {{- if .Values.geoapifyApiKey.existingSecret }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.geoapifyApiKey.existingSecret }}
-      key: {{ .Values.geoapifyApiKey.existingSecretKeyName }}
-  {{- else if .Values.geoapifyApiKey.value }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "dawarich.fullname" $ }}
-      key: geoapifyApiKey
-  {{- else }}
-  value: ""
-  {{- end }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "SECRET_KEY_BASE" "Key" "keyBase" "Value" .Values.keyBase "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "PHOTON_API_KEY" "Key" "photonApiKey" "Value" .Values.photonApiKey "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "GEOAPIFY_API_KEY" "Key" "geoapifyApiKey" "Value" .Values.geoapifyApiKey "Root" .) }}
 {{- if .Values.oidc.enabled }}
-- name: OIDC_CLIENT_ID
-  valueFrom:
-    secretKeyRef:
-      {{- if .Values.oidc.clientId.existingSecret }}
-      name: {{ .Values.oidc.clientId.existingSecret }}
-      key: {{ .Values.oidc.clientId.existingSecretKeyName }}
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: oidcClientId
-      {{- end }}
-- name: OIDC_CLIENT_SECRET
-  valueFrom:
-    secretKeyRef:
-      {{- if .Values.oidc.clientSecret.existingSecret }}
-      name: {{ .Values.oidc.clientSecret.existingSecret }}
-      key: {{ .Values.oidc.clientSecret.existingSecretKeyName }}
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: oidcClientSecret
-      {{- end }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_ID" "Key" "oidcClientId" "Value" .Values.oidc.clientId "Root" .) }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_SECRET" "Key" "oidcClientSecret" "Value" .Values.oidc.clientSecret "Root" .) }}
 - name: OIDC_ISSUER
   value: {{ .Values.oidc.issuer | quote }}
 - name: OIDC_REDIRECT_URI
