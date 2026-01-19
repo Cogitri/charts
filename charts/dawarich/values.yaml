@@ -152,14 +152,16 @@ postgresql:
     username: dawarich
 
 redis:
-  enabled: true
-  host: '{{ $.Release.Name }}-redis'
+  host: '{{ .Release.Name }}-ha-redis'
   port: 6379
+  password: null
+
+ha-redis:
+  enabled: true
 
   auth: true
-  existingSecret: null
-  authKey: redis-password
-  redisPassword: changeme
+  existingSecret: '{{ include "dawarich.secretName" . }}'
+  authKey: redisPassword
   haproxy:
     enabled: false
   exporter:
