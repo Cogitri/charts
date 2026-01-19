@@ -31,29 +31,17 @@ existingEnvSecret: null
 
 # See https://dawarich.app/docs/tutorials/reverse-geocoding
 # Photon and Geoapify are mutually exclusive
-photonApiKey:
-  existingSecret: null
-  existingSecretKeyName: "key"
-  value: ""
+photonApiKey: ""
 
-geoapifyApiKey:
-  existingSecret: null
-  existingSecretKeyName: "key"
-  value: ""
+geoapifyApiKey: ""
 
 # OIDC (OpenID Connect) authentication configuration
 oidc:
   enabled: false
   providerName: "OpenID Connect"
 
-  clientId:
-    existingSecret: null
-    existingSecretKeyName: "clientId"
-    value: ""
-  clientSecret:
-    existingSecret: null
-    existingSecretKeyName: "clientSecret"
-    value: ""
+  clientId: ""
+  clientSecret: ""
 
   issuer: ""
   redirectUri: ""
