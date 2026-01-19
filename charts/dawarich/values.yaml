@@ -2,6 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+global:
+  dawarich:
+    secretName: null
+
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   repository: docker.io/freikin/dawarich
@@ -152,14 +156,16 @@ postgresql:
     username: dawarich
 
 redis:
-  enabled: true
-  host: '{{ $.Release.Name }}-redis'
+  host: '{{ .Release.Name }}-ha-redis'
   port: 6379
+  password: null
+
+ha-redis:
+  enabled: true
 
   auth: true
-  existingSecret: null
-  authKey: redis-password
-  redisPassword: changeme
+  existingSecret: '{{ include "dawarich.secretName" . }}'
+  authKey: redisPassword
   haproxy:
     enabled: false
   exporter:

@@ -83,10 +83,6 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{- define "dawarich.redisSecretName" -}}
-{{- default (printf "%s-redis-secret" (include "dawarich.fullname" .)) .Values.dawarich.redis.existingSecret }}
-{{- end }}
-
 {{- define "dawarich.volumes" -}}
 {{- if .Values.persistence.public.enabled }}
 - name: public
@@ -166,8 +162,8 @@ Create the name of the service account to use
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_USERNAME" "Key" "postgresUsername" "Value" .Values.postgresql.auth.username "Root" .) }}
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PASSWORD" "Key" "postgresPassword" "Value" .Values.postgresql.auth.password "Root" .) }}
 {{- $redisAddr := print (tpl .Values.redis.host .) ":" .Values.redis.port }}
-{{- if .Values.redis.auth }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "A_REDIS_PASSWORD" "Key" "redisPassword" "Value" .Values.redis.redisPassword "Root" .) }}
+{{- if .Values.redis.password }}
+{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "A_REDIS_PASSWORD" "Key" "redisPassword" "Value" .Values.redis.password "Root" .) }}
 - name: REDIS_URL
   value: {{ print "redis://:$(A_REDIS_PASSWORD)@" $redisAddr | quote }}
 {{- else }}
@@ -178,8 +174,8 @@ Create the name of the service account to use
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "PHOTON_API_KEY" "Key" "photonApiKey" "Value" .Values.photonApiKey "Root" .) }}
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "GEOAPIFY_API_KEY" "Key" "geoapifyApiKey" "Value" .Values.geoapifyApiKey "Root" .) }}
 {{- if .Values.oidc.enabled }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_ID" "Key" "oidcClientId" "Value" .Values.oidc.clientId "Root" .) }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_SECRET" "Key" "oidcClientSecret" "Value" .Values.oidc.clientSecret "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_ID" "Key" "oidcClientId" "Value" .Values.oidc.clientId "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_SECRET" "Key" "oidcClientSecret" "Value" .Values.oidc.clientSecret "Root" .) }}
 - name: OIDC_ISSUER
   value: {{ .Values.oidc.issuer | quote }}
 - name: OIDC_REDIRECT_URI
@@ -234,9 +230,11 @@ periodSeconds: 10
 failureThreshold: 10
 {{- end }}
 
-{{- define "dawarich.secretValue" }}
-{{- if not (kindIs "map" .Value) }}
+{{- define "dawarich.secretValue" -}}
+{{- if .Value }}
+{{- if not (kindIs "map" .Value) -}}
 {{ .Key | quote }}: {{ ternary (tpl (.Value | toString) .Root) (.Value | toString) (not (not .Template)) | b64enc }}
+{{- end }}
 {{- end }}
 {{- end }}
 
@@ -246,11 +244,15 @@ failureThreshold: 10
   valueFrom:
     secretKeyRef:
       {{- if kindIs "map" .Value }}
-      name: {{ .Value.name | default (include "dawarich.fullname" .Root) }}
+      name: {{ .Value.name | default (include "dawarich.secretName" .Root) }}
       key: {{ .Value.key | quote }}
       {{- else }}
-      name: {{ include "dawarich.fullname" .Root }}
+      name: {{ include "dawarich.secretName" .Root }}
       key: {{ .Key | quote }}
       {{- end }}
 {{- end }}
+{{- end }}
+
+{{- define "dawarich.secretName" -}}
+{{ .Values.global.dawarich.secretName | default .Release.Name }}
 {{- end }}
