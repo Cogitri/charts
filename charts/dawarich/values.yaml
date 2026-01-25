@@ -2,6 +2,10 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+global:
+  dawarich:
+    secretName: null
+
 # This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
 image:
   repository: docker.io/freikin/dawarich
@@ -10,9 +14,7 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-keyBase:
-  existingSecret: null
-  value: changeme
+keyBase: changeme
 
 env:
   minMinutesSpentInCity: "60"
@@ -33,29 +35,17 @@ existingEnvSecret: null
 
 # See https://dawarich.app/docs/tutorials/reverse-geocoding
 # Photon and Geoapify are mutually exclusive
-photonApiKey:
-  existingSecret: null
-  existingSecretKeyName: "key"
-  value: ""
+photonApiKey: ""
 
-geoapifyApiKey:
-  existingSecret: null
-  existingSecretKeyName: "key"
-  value: ""
+geoapifyApiKey: ""
 
 # OIDC (OpenID Connect) authentication configuration
 oidc:
   enabled: false
   providerName: "OpenID Connect"
 
-  clientId:
-    existingSecret: null
-    existingSecretKeyName: "clientId"
-    value: ""
-  clientSecret:
-    existingSecret: null
-    existingSecretKeyName: "clientSecret"
-    value: ""
+  clientId: ""
+  clientSecret: ""
 
   issuer: ""
   redirectUri: ""
@@ -164,18 +154,18 @@ postgresql:
     database: dawarich
     password: changeme
     username: dawarich
-    postgresPassword: changeme
-    existingSecret: null
 
 redis:
-  enabled: true
-  host: '{{ $.Release.Name }}-redis'
+  host: '{{ .Release.Name }}-redis-ha'
   port: 6379
+  password: null
+
+redis-ha:
+  enabled: true
 
   auth: true
-  existingSecret: null
-  authKey: redis-password
-  redisPassword: changeme
+  existingSecret: '{{ include "dawarich.secretName" . }}'
+  authKey: redisPassword
   haproxy:
     enabled: false
   exporter:
