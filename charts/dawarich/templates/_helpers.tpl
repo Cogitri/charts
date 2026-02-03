@@ -199,7 +199,7 @@ Create the name of the service account to use
     secretKeyRef:
       {{- if .existingSecret }}
       name: {{ .existingSecret }}
-      key: redis-password
+      key: {{ .authKey | default "redis-password" }}
       {{- else }}
       name: {{ include "dawarich.fullname" $ }}
       key: redisPassword
