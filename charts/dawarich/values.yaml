@@ -156,11 +156,11 @@ postgresql:
     username: dawarich
 
 redis:
-  host: '{{ .Release.Name }}-ha-redis'
+  host: '{{ .Release.Name }}-bundled-redis'
   port: 6379
   password: null
 
-ha-redis:
+bundled-redis:
   enabled: true
 
   auth: true
