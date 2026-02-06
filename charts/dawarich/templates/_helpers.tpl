@@ -83,14 +83,6 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
-{{- define "dawarich.redisSecretName" -}}
-{{- default (printf "%s-redis-secret" (include "dawarich.fullname" .)) .Values.dawarich.redis.existingSecret }}
-{{- end }}
-
-{{- define "dawarich.postgresSecretName" -}}
-{{- default (printf "%s-postgres-secret" (include "dawarich.fullname" .)) .Values.dawarich.postgres.existingSecret }}
-{{- end }}
-
 {{- define "dawarich.volumes" -}}
 {{- if .Values.persistence.public.enabled }}
 - name: public
@@ -164,109 +156,25 @@ Create the name of the service account to use
   value: "true"
 - name: APPLICATION_HOSTS
   value: {{ join "," .Values.dawarich.hosts }}
-{{- with .Values.postgresql }}
-- name: DATABASE_HOST
-  value: "{{ tpl $.Values.postgresql.host $ }}"
-- name: DATABASE_PORT
-  value: "{{ .port }}"
-- name: DATABASE_NAME
-  value: "{{ .auth.database }}"
-- name: DATABASE_USERNAME
-  valueFrom:
-    secretKeyRef:
-      {{- if .auth.existingSecret }}
-      name: {{ .auth.existingSecret }}
-      key: username
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: postgresUsername
-      {{- end }}
-- name: DATABASE_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      {{- if .auth.existingSecret }}
-      name: {{ .auth.existingSecret }}
-      key: password
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: postgresPassword
-      {{- end }}
-{{- end }}
-{{- with .Values.redis }}
-{{- if .auth }}
-- name: A_REDIS_PASSWORD
-  valueFrom:
-    secretKeyRef:
-      {{- if .existingSecret }}
-      name: {{ .existingSecret }}
-      key: {{ .authKey | default "redis-password" }}
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: redisPassword
-      {{- end }}
-{{- end }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_HOST" "Key" "postgresHost" "Value" .Values.postgresql.host "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PORT" "Key" "postgresPort" "Value" .Values.postgresql.port "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_NAME" "Key" "postgresDatabase" "Value" .Values.postgresql.auth.database "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_USERNAME" "Key" "postgresUsername" "Value" .Values.postgresql.auth.username "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PASSWORD" "Key" "postgresPassword" "Value" .Values.postgresql.auth.password "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "A_REDIS_PASSWORD" "Key" "redisPassword" "Value" .Values.redis.password "Optional" (not .Values.redis.auth) "Root" .) }}
 - name: REDIS_URL
-  value: redis://{{ if .auth }}:$(A_REDIS_PASSWORD)@{{ end }}{{ tpl $.Values.redis.host $ }}:{{ .port }}
+{{- $redisAddr := print (tpl .Values.redis.host .) ":" .Values.redis.port }}
+{{- if .Values.redis.auth }}
+  value: {{ print "redis://:$(A_REDIS_PASSWORD)@" $redisAddr | quote }}
+{{- else }}
+  value: {{ print "redis://" $redisAddr | quote }}
 {{- end }}
-- name: SECRET_KEY_BASE
-  valueFrom:
-    secretKeyRef:
-      {{- if .Values.keyBase.existingSecret }}
-      name: {{ .Values.keyBase.existingSecret }}
-      key: value
-      {{- else }}
-      name: {{ include "dawarich.fullname" . }}
-      key: keyBase
-      {{- end }}
-- name: PHOTON_API_KEY
-  {{- if .Values.photonApiKey.existingSecret }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.photonApiKey.existingSecret }}
-      key: {{ .Values.photonApiKey.existingSecretKeyName }}
-  {{- else if .Values.photonApiKey.value }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "dawarich.fullname" $ }}
-      key: photonApiKey
-  {{- else }}
-  value: ""
-  {{- end }}
-- name: GEOAPIFY_API_KEY
-  {{- if .Values.geoapifyApiKey.existingSecret }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ .Values.geoapifyApiKey.existingSecret }}
-      key: {{ .Values.geoapifyApiKey.existingSecretKeyName }}
-  {{- else if .Values.geoapifyApiKey.value }}
-  valueFrom:
-    secretKeyRef:
-      name: {{ include "dawarich.fullname" $ }}
-      key: geoapifyApiKey
-  {{- else }}
-  value: ""
-  {{- end }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "SECRET_KEY_BASE" "Key" "keyBase" "Value" .Values.keyBase "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "PHOTON_API_KEY" "Key" "photonApiKey" "Value" .Values.photonApiKey "Optional" true "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "GEOAPIFY_API_KEY" "Key" "geoapifyApiKey" "Value" .Values.geoapifyApiKey "Optional" true "Root" .) }}
 {{- if .Values.oidc.enabled }}
-- name: OIDC_CLIENT_ID
-  valueFrom:
-    secretKeyRef:
-      {{- if .Values.oidc.clientId.existingSecret }}
-      name: {{ .Values.oidc.clientId.existingSecret }}
-      key: {{ .Values.oidc.clientId.existingSecretKeyName }}
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: oidcClientId
-      {{- end }}
-- name: OIDC_CLIENT_SECRET
-  valueFrom:
-    secretKeyRef:
-      {{- if .Values.oidc.clientSecret.existingSecret }}
-      name: {{ .Values.oidc.clientSecret.existingSecret }}
-      key: {{ .Values.oidc.clientSecret.existingSecretKeyName }}
-      {{- else }}
-      name: {{ include "dawarich.fullname" $ }}
-      key: oidcClientSecret
-      {{- end }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_ID" "Key" "oidcClientId" "Value" .Values.oidc.clientId "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_SECRET" "Key" "oidcClientSecret" "Value" .Values.oidc.clientSecret "Root" .) }}
 - name: OIDC_ISSUER
   value: {{ .Values.oidc.issuer | quote }}
 - name: OIDC_REDIRECT_URI
@@ -278,17 +186,14 @@ Create the name of the service account to use
 - name: ALLOW_EMAIL_PASSWORD_REGISTRATION
   value: {{ .Values.oidc.allowEmailPasswordRegistration | quote }}
 {{- end }}
-
 {{- end }}
 
 {{- define "dawarich.initContainers" }}
 - name: wait-for-postgres
   image: busybox
   env:
-    - name: DATABASE_HOST
-      value: "{{ tpl .Values.postgresql.host . }}"
-    - name: DATABASE_PORT
-      value: "{{ .Values.postgresql.port }}"
+    {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_HOST" "Key" "postgresHost" "Value" .Values.postgresql.host "Root" .) | nindent 4 }}
+    {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PORT" "Key" "postgresPort" "Value" .Values.postgresql.port "Root" .) | nindent 4 }}
   command: ['sh', '-c', 'until nc -z "$DATABASE_HOST" "$DATABASE_PORT"; do echo waiting for postgres; sleep 2; done;']
 {{- end }}
 
@@ -321,4 +226,25 @@ httpGet:
 initialDelaySeconds: 30
 periodSeconds: 10
 failureThreshold: 10
+{{- end }}
+
+{{- define "dawarich.secretValue" -}}
+{{- $value := get .Root.Values.secret.stringData .Key }}
+{{- if $value }}
+{{- $value = $value | toString }}
+{{ .Key | quote }}: {{ ternary (tpl $value .Root) $value (not (not .Template)) | b64enc }}
+{{- end }}
+{{- end }}
+
+{{- define "dawarich.secretValueEnvRef" }}
+- name: {{ .EnvName | quote }}
+  valueFrom:
+    secretKeyRef:
+      name: {{ .Value.name | default (include "dawarich.secretName" .Root) }}
+      key: {{ .Value.key | quote }}
+      optional: {{ not (not .Optional) }}
+{{- end }}
+
+{{- define "dawarich.secretName" -}}
+{{ .Values.global.dawarich.secretName | default .Release.Name }}
 {{- end }}
