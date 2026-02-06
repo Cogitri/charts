@@ -14,7 +14,23 @@ image:
   # Overrides the image tag whose default is the chart appVersion.
   tag: ""
 
-keyBase: changeme
+secret:
+  create: true
+  stringData:
+    keyBase: changeme
+    postgresHost: null
+    postgresPort: null
+    postgresDatabase: dawarich
+    postgresUsername: dawarich
+    postgresPassword: changeme
+    redisPassword: null
+    photonApiKey: null
+    geoapifyApiKey: null
+    oidcClientId: null
+    oidcClientSecret: null
+
+keyBase:
+  key: keyBase
 
 env:
   minMinutesSpentInCity: "60"
@@ -35,17 +51,21 @@ existingEnvSecret: null
 
 # See https://dawarich.app/docs/tutorials/reverse-geocoding
 # Photon and Geoapify are mutually exclusive
-photonApiKey: ""
+photonApiKey:
+  key: photonApiKey
 
-geoapifyApiKey: ""
+geoapifyApiKey:
+  key: geoapifyApiKey
 
 # OIDC (OpenID Connect) authentication configuration
 oidc:
   enabled: false
   providerName: "OpenID Connect"
 
-  clientId: ""
-  clientSecret: ""
+  clientId:
+    key: oidcClientId
+  clientSecret:
+    key: oidcClientSecret
 
   issuer: ""
   redirectUri: ""
@@ -151,14 +171,19 @@ postgresql:
   port: 5432
 
   auth:
-    database: dawarich
-    password: changeme
-    username: dawarich
+    database:
+      key: postgresDatabase
+    username:
+      key: postgresUsername
+    password:
+      key: postgresPassword
 
 redis:
   host: '{{ .Release.Name }}-bundled-redis'
   port: 6379
-  password: null
+  auth: true
+  password:
+    key: redisPassword
 
 bundled-redis:
   enabled: true
