@@ -161,18 +161,17 @@ Create the name of the service account to use
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_NAME" "Key" "postgresDatabase" "Value" .Values.postgresql.auth.database "Root" .) }}
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_USERNAME" "Key" "postgresUsername" "Value" .Values.postgresql.auth.username "Root" .) }}
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "DATABASE_PASSWORD" "Key" "postgresPassword" "Value" .Values.postgresql.auth.password "Root" .) }}
-{{- $redisAddr := print (tpl .Values.redis.host .) ":" .Values.redis.port }}
-{{- if .Values.redis.password }}
-{{ include "dawarich.secretValueEnvRef" (dict "EnvName" "A_REDIS_PASSWORD" "Key" "redisPassword" "Value" .Values.redis.password "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "A_REDIS_PASSWORD" "Key" "redisPassword" "Value" .Values.redis.password "Optional" (not .Values.redis.auth) "Root" .) }}
 - name: REDIS_URL
+{{- $redisAddr := print (tpl .Values.redis.host .) ":" .Values.redis.port }}
+{{- if .Values.redis.auth }}
   value: {{ print "redis://:$(A_REDIS_PASSWORD)@" $redisAddr | quote }}
 {{- else }}
-- name: REDIS_URL
   value: {{ print "redis://" $redisAddr | quote }}
 {{- end }}
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "SECRET_KEY_BASE" "Key" "keyBase" "Value" .Values.keyBase "Root" .) }}
-{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "PHOTON_API_KEY" "Key" "photonApiKey" "Value" .Values.photonApiKey "Root" .) }}
-{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "GEOAPIFY_API_KEY" "Key" "geoapifyApiKey" "Value" .Values.geoapifyApiKey "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "PHOTON_API_KEY" "Key" "photonApiKey" "Value" .Values.photonApiKey "Optional" true "Root" .) }}
+{{- include "dawarich.secretValueEnvRef" (dict "EnvName" "GEOAPIFY_API_KEY" "Key" "geoapifyApiKey" "Value" .Values.geoapifyApiKey "Optional" true "Root" .) }}
 {{- if .Values.oidc.enabled }}
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_ID" "Key" "oidcClientId" "Value" .Values.oidc.clientId "Root" .) }}
 {{- include "dawarich.secretValueEnvRef" (dict "EnvName" "OIDC_CLIENT_SECRET" "Key" "oidcClientSecret" "Value" .Values.oidc.clientSecret "Root" .) }}
@@ -187,7 +186,6 @@ Create the name of the service account to use
 - name: ALLOW_EMAIL_PASSWORD_REGISTRATION
   value: {{ .Values.oidc.allowEmailPasswordRegistration | quote }}
 {{- end }}
-
 {{- end }}
 
 {{- define "dawarich.initContainers" }}
@@ -231,26 +229,20 @@ failureThreshold: 10
 {{- end }}
 
 {{- define "dawarich.secretValue" -}}
-{{- if .Value }}
-{{- if not (kindIs "map" .Value) -}}
-{{ .Key | quote }}: {{ ternary (tpl (.Value | toString) .Root) (.Value | toString) (not (not .Template)) | b64enc }}
-{{- end }}
+{{- $value := get .Root.Values.secret.stringData .Key }}
+{{- if $value }}
+{{- $value = $value | toString }}
+{{ .Key | quote }}: {{ ternary (tpl $value .Root) $value (not (not .Template)) | b64enc }}
 {{- end }}
 {{- end }}
 
 {{- define "dawarich.secretValueEnvRef" }}
-{{- if .Value }}
 - name: {{ .EnvName | quote }}
   valueFrom:
     secretKeyRef:
-      {{- if kindIs "map" .Value }}
       name: {{ .Value.name | default (include "dawarich.secretName" .Root) }}
       key: {{ .Value.key | quote }}
-      {{- else }}
-      name: {{ include "dawarich.secretName" .Root }}
-      key: {{ .Key | quote }}
-      {{- end }}
-{{- end }}
+      optional: {{ not (not .Optional) }}
 {{- end }}
 
 {{- define "dawarich.secretName" -}}
