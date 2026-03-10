@@ -7,9 +7,9 @@ version: 2.2.0
 appVersion: "1.3.2"
 dependencies:
   - name: redis-ha
+    alias: bundled-redis
     repository: https://dandydeveloper.github.io/charts
     version: 4.35.10
-    condition: redis.enabled
-    alias: redis
+    condition: bundled-redis.enabled
 sources:
   - https://dawarich.app
