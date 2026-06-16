@@ -136,6 +136,7 @@ persistence:
     enabled: true
     existingClaim: ""
     annotations: []
+    labels: []
     accessMode: "ReadWriteOnce"
     storageClass: ""
     size: 10Gi
@@ -144,6 +145,7 @@ persistence:
     enabled: true
     existingClaim: ""
     annotations: []
+    labels: []
     accessMode: "ReadWriteOnce"
     storageClass: ""
     size: 10Gi
@@ -152,6 +154,7 @@ persistence:
     enabled: true
     existingClaim: ""
     annotations: []
+    labels: []
     accessMode: "ReadWriteOnce"
     storageClass: ""
     size: 5Gi
