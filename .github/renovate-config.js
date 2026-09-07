@@ -14,4 +14,11 @@ module.exports = {
     onboarding: false,
     platform: "github",
     automergeStrategy: "merge-commit",
+    packageRules: [
+        {
+          "matchPackageNames": ["github-action", "renovatebot/github-action"],
+          "ignoreTests": true,
+          "automerge": true
+        }
+    ],
 };
