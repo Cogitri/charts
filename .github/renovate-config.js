@@ -16,9 +16,9 @@ module.exports = {
     automergeStrategy: "merge-commit",
     packageRules: [
         {
-          "matchPackageNames": ["github-action", "renovatebot/github-action"],
-          "ignoreTests": true,
-          "automerge": true
+            matchPackageNames: ["github-action", "renovatebot/github-action"],
+            ignoreTests: true,
+            automerge: true
         }
     ],
 };
