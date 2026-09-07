@@ -4,7 +4,7 @@ description: "Self-hosted alternative to Google Location History"
 type: application
 version: 2.8.2
 # renovate datasource=docker depName=docker.io/freikin/dawarich
-appVersion: "1.14.3"
+appVersion: "1.14.4"
 dependencies:
   - name: redis-ha
     repository: https://dandydeveloper.github.io/charts
