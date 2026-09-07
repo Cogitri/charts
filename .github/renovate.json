@@ -8,6 +8,13 @@
     ],
     "gitAuthor": "Renovate Bot <bot@renovateapp.com>",
     "automergeStrategy": "merge-commit",
+    "packageRules": [
+        {
+            "matchPackageNames": ["github-action", "renovatebot/github-action"],
+            "ignoreTests": true,
+            "automerge": true
+        }
+    ],
     "regexManagers": [
         {
           "fileMatch": ["\\.yaml$"],
