@@ -293,13 +293,21 @@ Create the name of the service account to use
 {{- end }}
 
 
+{{- define "dawarich.probeHeaders" }}
+- name: Host
+  value: {{ .Values.dawarich.hosts | first }}
+{{- if eq .Values.env.applicationProtocol "https" }}
+- name: X-Forwarded-Proto
+  value: https
+{{- end }}
+{{- end }}
+
 {{- define "dawarich.livenessProbe" }}
 httpGet:
   path: /api/v1/health
   port: http
   httpHeaders:
-    - name: Host
-      value: {{ .Values.dawarich.hosts | first }}
+    {{- include "dawarich.probeHeaders" . | nindent 4 }}
 {{- end }}
 
 {{- define "dawarich.readinessProbe" }}
@@ -307,8 +315,7 @@ httpGet:
   path: /api/v1/health
   port: http
   httpHeaders:
-    - name: Host
-      value: {{ .Values.dawarich.hosts | first }}
+    {{- include "dawarich.probeHeaders" . | nindent 4 }}
 {{- end }}
 
 {{- define "dawarich.startupProbe" }}
@@ -316,8 +323,7 @@ httpGet:
   path: /api/v1/health
   port: http
   httpHeaders:
-    - name: Host
-      value: {{ .Values.dawarich.hosts | first }}
+    {{- include "dawarich.probeHeaders" . | nindent 4 }}
 initialDelaySeconds: 30
 periodSeconds: 10
 failureThreshold: 10
